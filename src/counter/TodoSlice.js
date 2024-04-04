@@ -1,14 +1,35 @@
-
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { getUnicorn } from './UnicornAPI';
+
+export const unicornAsync = createAsyncThunk(
+    'todo/fetchCount',
+    async (amount) => {
+        const response = await getUnicorn(amount);
+        // The value we return becomes the `fulfilled` action payload
+        return response.data;
+    }
+);
+
 export const todoSlice = createSlice({
-    name: "todoSlice",
+    name: "todo",
     initialState: {
         value: ["item1", "item2"]
     },
     reducers: {
         addTodo: (state, action) => {
             state.value.push(action.payload)
-        }
+        },
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(unicornAsync.pending, (state) => {
+                console.log("pending");
+            })
+            .addCase(unicornAsync.fulfilled, (state, action) => {
+                console.log("done");
+                state.value.push(action.payload)
+            })
+
     }
 })
 
