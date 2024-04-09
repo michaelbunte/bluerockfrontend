@@ -1,33 +1,19 @@
 import { useState } from "react"
 import { useSelector, useDispatch } from 'react-redux';
-import { selectTodos, addTodo, unicornAsync } from "./TodoSlice";
+import {
+    set_selected_sensors_cache_to_loaded,
+    select_selected_sensors_cache_state
+} from "./CachesSlice";
 
 export default function Todo() {
-    const [write_text, set_write_text] = useState("");
     const dispatch = useDispatch();
-    const todos = useSelector(selectTodos);
+    const selected_sensors_cache_state = useSelector(select_selected_sensors_cache_state);
     return (<div>
-        <div>
-            hello there
-        </div>
-        <input
-            type="text"
-            value={write_text}
-            onChange={(e) => set_write_text(e.target.value)} />
+        {selected_sensors_cache_state}
         <button
             onClick={() => {
-                dispatch(addTodo(write_text))
-                set_write_text("");
+                dispatch(set_selected_sensors_cache_to_loaded());
             }}
         >enter</button>
-
-        <button
-            onClick={() => {
-                dispatch(unicornAsync())
-            }}
-        >add unicorn</button>
-        <div>
-            {todos.map(value => <div>{value}</div>)}
-        </div>
     </div>)
 }

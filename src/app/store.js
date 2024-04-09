@@ -1,8 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
-import todoReducer from "../counter/TodoSlice";
+import cachesReducer from "../counter/CachesSlice";
 
 export const store = configureStore({
     reducer: {
-        todo: todoReducer,
+        caches: cachesReducer
     },
 });
