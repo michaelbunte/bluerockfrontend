@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { getUnicorn } from './UnicornAPI';
 
+
 export const unicornAsync = createAsyncThunk(
     'todo/fetchCount',
     async (amount) => {
@@ -13,7 +14,15 @@ export const unicornAsync = createAsyncThunk(
 export const todoSlice = createSlice({
     name: "todo",
     initialState: {
-        value: ["item1", "item2"]
+        value: ["item1", "item2"],
+        play_state: false,
+        playback_cache_state: "loading",
+        cache: [],
+        start_bound: new Date(),
+        end_bound: new Date(),
+        previous_query: { start: new Date(), end: new Date()},
+        sensor_info_table: {},
+        time_step: 1000
     },
     reducers: {
         addTodo: (state, action) => {
@@ -29,7 +38,6 @@ export const todoSlice = createSlice({
                 console.log("done");
                 state.value.push(action.payload)
             })
-
     }
 })
 
