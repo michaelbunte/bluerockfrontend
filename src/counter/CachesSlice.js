@@ -47,6 +47,7 @@ export const update_sensor_list = createAsyncThunk(
             selected_sensors
         } = args;
 
+        console.log("calling update sensor list")
         if (set_selected_sensors_to_loading) {
             await dispatch({
                 type: "caches/set_selected_sensors_cache_to_loading"
@@ -55,7 +56,7 @@ export const update_sensor_list = createAsyncThunk(
 
         await dispatch({
             type: "caches/update_most_recent_query",
-            action: {
+            payload: {
                 start: get_min_date(state.caches.handle_1_date, state.caches.handle_2_date),
                 end: get_max_date(state.caches.handle_1_date, state.caches.handle_2_date),
             }
@@ -113,7 +114,8 @@ export const cachesSlice = createSlice({
             state.test = "we have tested"
         },
         update_most_recent_query: (state, action) => {
-            let {start, end} = action.payload;
+            let { start, end } = action.payload;
+
             state.most_recent_query = {
                 start: start,
                 end: end,
@@ -134,8 +136,8 @@ export const cachesSlice = createSlice({
                 window.alert("Failed To Contact Server");
             })
 
-            .addCase(handle_time_increment.fulfilled, (state) => {
-
+            .addCase(update_sensor_list.rejected, (state, error) => {
+                console.error(error)
             })
     }
 });

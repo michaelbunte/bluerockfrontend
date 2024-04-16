@@ -4,13 +4,14 @@ import {
     set_selected_sensors_cache_to_loaded,
     select_selected_sensors_cache_state,
     initial_page_load,
-    handle_time_increment
+    handle_time_increment,
+    update_sensor_list
 } from "./CachesSlice";
 
 export default function Todo() {
     const dispatch = useDispatch();
     const select = useSelector(state => state.caches.start_date);
-    const overall_cache_state = useSelector(state => state.caches)
+    const overall_cache_state = useSelector(state => state.caches);
 
     const [is_init_load, set_is_init_load] = useState(true);
 
@@ -37,11 +38,14 @@ export default function Todo() {
         <button
             onClick={() => {
                 console.log("dispatching")
-                dispatch(handle_time_increment());
+                dispatch(update_sensor_list({
+                    set_selected_sensors_to_loading: "false",
+                    selected_sensors: ["plctime"]
+                }));
             }}
         >enter</button>
         <div>
-            {JSON.stringify(overall_cache_state)}
+            {JSON.stringify(overall_cache_state.most_recent_query)}
         </div>
     </div>)
 }
