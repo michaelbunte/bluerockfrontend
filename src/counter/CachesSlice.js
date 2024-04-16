@@ -6,7 +6,6 @@ let host_string = "ec2-54-215-192-153.us-west-1.compute.amazonaws.com:5001";
 export const initial_page_load = createAsyncThunk(
     'caches/initial_page_load',
     async (amount) => {
-        console.log("fetching")
         let [sensor_table, plcrange] = await Promise.all([
             fetch(`http://${host_string}/bluerock/sensor_info_table`)
                 .then(response => response.json()),
@@ -28,10 +27,11 @@ export const cachesSlice = createSlice({
         selected_sensors_cache_state: "empty",
         start_date: new Date("1970").toISOString(),
         end_date: new Date("1970").toISOString(),
+        sensor_table: []
     },
     reducers: {
         set_selected_sensors_cache_to_loading: (state) => {
-            state.selected_sensors_cache_state = "loading"
+            state.selected_sensors_cache_state = "loading";
         },
         set_selected_sensors_cache_to_loaded: (state) => {
             state.selected_sensors_cache_state = "loaded";
@@ -45,11 +45,9 @@ export const cachesSlice = createSlice({
                 state.end_date = action.payload.end_date;
                 state.sensor_table = action.payload.sensor_table;
             })
-            .addCase(initial_page_load.rejected, (state) => {
+            .addCase(initial_page_load.rejected, () => {
                 window.alert("Failed To Contact Server");
             })
-            
-
     }
 });
 

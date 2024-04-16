@@ -8,8 +8,21 @@ import {
 
 export default function Todo() {
     const dispatch = useDispatch();
+    const select = useSelector(state => state.caches.start_date);
 
-    useEffect(()=>{dispatch(initial_page_load())}, []);
+    const [is_init_load, set_is_init_load] = useState(true);
+
+    useEffect(() => {
+        // ensures this can only run once
+
+        if (!is_init_load) { return; }
+        set_is_init_load(false);
+
+        const load = async () => {
+            await dispatch(initial_page_load());
+        }
+        load();
+    }, [select]);
 
     const selected_sensors_cache_state = useSelector(select_selected_sensors_cache_state);
     return (<div>
@@ -22,6 +35,7 @@ export default function Todo() {
 
         <button
             onClick={() => {
+                console.log("dispatching")
                 dispatch(initial_page_load());
             }}
         >enter</button>
