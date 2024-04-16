@@ -41,27 +41,58 @@ args: {
 export const update_sensor_list = createAsyncThunk(
     "caches/update_sensor_list",
     async (args, { dispatch, getState }) => {
-        const state = getState();
         let {
             set_selected_sensors_to_loading,
             selected_sensors
         } = args;
-
+        
         console.log("calling update sensor list")
         if (set_selected_sensors_to_loading) {
             await dispatch({
                 type: "caches/set_selected_sensors_cache_to_loading"
             });
         }
+        
+        let state = getState();
+
+        let query_range = {
+            start: get_min_date(state.caches.handle_1_date, state.caches.handle_2_date),
+            end: get_max_date(state.caches.handle_1_date, state.caches.handle_2_date),
+        };
 
         await dispatch({
             type: "caches/update_most_recent_query",
-            payload: {
-                start: get_min_date(state.caches.handle_1_date, state.caches.handle_2_date),
-                end: get_max_date(state.caches.handle_1_date, state.caches.handle_2_date),
-            }
+            payload: query_range
         });
 
+        let retrieved_sensor_values = await Promise.all(selected_sensors.map(
+            sensor_name =>
+                fetch(`http://${host_string}/bluerock/adaptive_all_history/${sensor_name}/${new Date(state.caches.handle_1_date)}/${new Date(state.caches.handle_2_date)}`)
+                    .then(response => response.json())
+        ));
+
+        state = getState();
+        let first_date = get_min_date(state.caches.handle_1_date, state.caches.handle_2_date);
+        let second_date = get_max_date(state.caches.handle_1_date, state.caches.handle_2_date);
+        // if the query range has been updated, during the previous request,then
+        // we want to discard the data
+        if(first_date != query_range.start || second_date != query_range.end) {
+            return;
+        }
+
+        let selected_sensors_obj = {};
+        for(let i = 0; i < selected_sensors.length; i++) {
+            selected_sensors_obj[selected_sensors[i]] = retrieved_sensor_values[i];
+        }
+
+        await dispatch({
+            type: "caches/set_selected_sensors_cache_to_loaded"
+        });
+        
+        await dispatch({
+            type: "caches/update_selected_sensors_cache",
+            payload: selected_sensors_obj
+        })
     }
 )
 
@@ -90,6 +121,7 @@ export const cachesSlice = createSlice({
         playing: false,
         test: "not tested",
         selected_sensors_cache_state: "empty",
+        selected_sensors_cache: [],
         playback_cache_state: "empty",
         start_date: new Date("1970").toISOString(),
         end_date: new Date("1970").toISOString(),
@@ -120,6 +152,10 @@ export const cachesSlice = createSlice({
                 start: start,
                 end: end,
             };
+        },
+
+        update_selected_sensors_cache: (state, action) => {
+            state.selected_sensors_cache = action.payload;
         }
     },
     extraReducers: (builder) => {

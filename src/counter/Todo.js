@@ -40,12 +40,12 @@ export default function Todo() {
                 console.log("dispatching")
                 dispatch(update_sensor_list({
                     set_selected_sensors_to_loading: "false",
-                    selected_sensors: ["plctime"]
+                    selected_sensors: ["concentrateflow", "recycleflow"]
                 }));
             }}
         >enter</button>
         <div>
-            {JSON.stringify(overall_cache_state.most_recent_query)}
+            {JSON.stringify(overall_cache_state.selected_sensors_cache)}
         </div>
     </div>)
 }
