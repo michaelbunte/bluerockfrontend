@@ -120,9 +120,9 @@ export const cachesSlice = createSlice({
     initialState: {
         playing: false,
         test: "not tested",
-        selected_sensors_cache_state: "empty",
+        selected_sensors_cache_state: "loading",
         selected_sensors_cache: [],
-        playback_cache_state: "empty",
+        playback_cache_state: "loading",
         start_date: new Date("1970").toISOString(),
         end_date: new Date("1970").toISOString(),
         handle_1_date: new Date("1970").toISOString(),

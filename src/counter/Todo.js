@@ -33,23 +33,37 @@ export default function Todo() {
         set_is_init_load(false);
     }, []);
 
-    useEffect(()=>{
+    useEffect(() => {
         set_handle_1_date(new Date(handle_start));
         set_handle_2_date(new Date(handle_end));
     }, [handle_start, handle_end])
 
     const selected_sensors_cache_state = useSelector(select_selected_sensors_cache_state);
-
     const selected_sensors_cache = useSelector(state => state.caches.selected_sensors_cache);
+
     const sensor_names = Object.keys(selected_sensors_cache);
+
+
+    const on_chart_resize = async (low, high) => {
+        await dispatch(update_handle_1_date(new Date(low).toISOString()));
+        await dispatch(update_handle_2_date(new Date(high).toISOString()));
+        await dispatch(update_sensor_list({
+            set_selected_sensors_to_loading: "true",
+            selected_sensors: ["permtemp", "recycleflow"]
+        }));
+    }
+
     const charts = sensor_names.map(sensor_name =>
         <BrushChart
+            title={sensor_name}
             key={sensor_name}
             brush_1_time={new Date(handle_1_date)}
             brush_2_time={new Date(handle_2_date)}
             set_brush_1_time={set_handle_1_date}
             set_brush_2_time={set_handle_2_date}
+            is_loading={selected_sensors_cache_state == "loading"}
             data={selected_sensors_cache[sensor_name]}
+            on_chart_resize={on_chart_resize}
         />);
 
     return (<div>
@@ -65,12 +79,15 @@ export default function Todo() {
                 console.log("dispatching")
                 dispatch(update_sensor_list({
                     set_selected_sensors_to_loading: "false",
-                    selected_sensors: ["concentrateflow", "recycleflow"]
+                    selected_sensors: ["permtemp", "recycleflow"]
                 }));
             }}
         >enter</button>
 
-        {charts}
+        <div>
+            {charts}
+        </div>
+
 
         <div>
             {JSON.stringify(overall_cache_state.selected_sensors_cache)}
