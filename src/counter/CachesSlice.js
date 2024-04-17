@@ -134,8 +134,6 @@ export const cachesSlice = createSlice({
         }
     },
     reducers: {
-
-
         set_selected_sensors_cache_to_loading: (state) => {
             state.selected_sensors_cache_state = "loading";
         },
@@ -153,7 +151,12 @@ export const cachesSlice = createSlice({
                 end: end,
             };
         },
-
+        update_handle_1_date: (state, action) => {
+            state.handle_1_date = action.payload;
+        },
+        update_handle_2_date: (state, action) => {
+            state.handle_2_date = action.payload;
+        },
         update_selected_sensors_cache: (state, action) => {
             state.selected_sensors_cache = action.payload;
         }
@@ -180,7 +183,9 @@ export const cachesSlice = createSlice({
 
 export const {
     set_selected_sensors_cache_to_loading,
-    set_selected_sensors_cache_to_loaded
+    set_selected_sensors_cache_to_loaded,
+    update_handle_1_date,
+    update_handle_2_date
 } = cachesSlice.actions;
 
 export const select_selected_sensors_cache_state =
