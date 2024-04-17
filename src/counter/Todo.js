@@ -43,7 +43,6 @@ export default function Todo() {
 
     const sensor_names = Object.keys(selected_sensors_cache);
 
-
     const on_chart_resize = async (low, high) => {
         await dispatch(update_handle_1_date(new Date(low).toISOString()));
         await dispatch(update_handle_2_date(new Date(high).toISOString()));
@@ -51,7 +50,7 @@ export default function Todo() {
             set_selected_sensors_to_loading: "true",
             selected_sensors: ["permtemp", "recycleflow"]
         }));
-    }
+    };
 
     const charts = sensor_names.map(sensor_name =>
         <BrushChart

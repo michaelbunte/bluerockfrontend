@@ -46,7 +46,6 @@ export const update_sensor_list = createAsyncThunk(
             selected_sensors
         } = args;
         
-        console.log("calling update sensor list")
         if (set_selected_sensors_to_loading) {
             await dispatch({
                 type: "caches/set_selected_sensors_cache_to_loading"
@@ -55,10 +54,22 @@ export const update_sensor_list = createAsyncThunk(
         
         let state = getState();
 
+
+        let min_date = new Date(get_min_date(state.caches.handle_1_date, state.caches.handle_2_date)).getTime();
+        let max_date = new Date(get_max_date(state.caches.handle_1_date, state.caches.handle_2_date)).getTime();
+        let difference = max_date - min_date;
+
+        max_date = new Date(max_date + difference * 0.5);
+
         let query_range = {
-            start: get_min_date(state.caches.handle_1_date, state.caches.handle_2_date),
-            end: get_max_date(state.caches.handle_1_date, state.caches.handle_2_date),
+            start: new Date(min_date).toISOString(),
+            end: new Date(max_date).toISOString(),
         };
+
+        // query_range = {
+        //     start: get_min_date(state.caches.handle_1_date, state.caches.handle_2_date),
+        //     end: get_max_date(state.caches.handle_1_date, state.caches.handle_2_date),
+        // }
 
         await dispatch({
             type: "caches/update_most_recent_query",
@@ -67,13 +78,14 @@ export const update_sensor_list = createAsyncThunk(
 
         let retrieved_sensor_values = await Promise.all(selected_sensors.map(
             sensor_name =>
-                fetch(`http://${host_string}/bluerock/adaptive_all_history/${sensor_name}/${new Date(state.caches.handle_1_date)}/${new Date(state.caches.handle_2_date)}`)
+                fetch(`http://${host_string}/bluerock/adaptive_all_history/${sensor_name}/${new Date(query_range.start)}/${new Date(query_range.end)}`)
                     .then(response => response.json())
         ));
 
         state = getState();
-        let first_date = get_min_date(state.caches.handle_1_date, state.caches.handle_2_date);
-        let second_date = get_max_date(state.caches.handle_1_date, state.caches.handle_2_date);
+        let first_date = get_min_date(state.caches.most_recent_query.start, state.caches.most_recent_query.end);
+        let second_date = get_max_date(state.caches.most_recent_query.start, state.caches.most_recent_query.end);
+        
         // if the query range has been updated, during the previous request,then
         // we want to discard the data
         if(first_date != query_range.start || second_date != query_range.end) {
@@ -107,10 +119,6 @@ export const handle_time_increment = createAsyncThunk(
         //     || state.caches.playback_cache_state != "loaded"
         // ) { return; }
 
-        dispatch({
-            type: "caches/try_test"
-        });
-
         return {}
     }
 )
@@ -139,9 +147,6 @@ export const cachesSlice = createSlice({
         },
         set_selected_sensors_cache_to_loaded: (state) => {
             state.selected_sensors_cache_state = "loaded";
-        },
-        try_test: (state) => {
-            state.test = "we have tested"
         },
         update_most_recent_query: (state, action) => {
             let { start, end } = action.payload;
