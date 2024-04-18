@@ -45,13 +45,13 @@ export const update_sensor_list = createAsyncThunk(
             set_selected_sensors_to_loading,
             selected_sensors
         } = args;
-        
+
         if (set_selected_sensors_to_loading) {
             await dispatch({
                 type: "caches/set_selected_sensors_cache_to_loading"
             });
         }
-        
+
         let state = getState();
 
 
@@ -85,22 +85,22 @@ export const update_sensor_list = createAsyncThunk(
         state = getState();
         let first_date = get_min_date(state.caches.most_recent_query.start, state.caches.most_recent_query.end);
         let second_date = get_max_date(state.caches.most_recent_query.start, state.caches.most_recent_query.end);
-        
+
         // if the query range has been updated, during the previous request,then
         // we want to discard the data
-        if(first_date != query_range.start || second_date != query_range.end) {
+        if (first_date != query_range.start || second_date != query_range.end) {
             return;
         }
 
         let selected_sensors_obj = {};
-        for(let i = 0; i < selected_sensors.length; i++) {
+        for (let i = 0; i < selected_sensors.length; i++) {
             selected_sensors_obj[selected_sensors[i]] = retrieved_sensor_values[i];
         }
 
         await dispatch({
             type: "caches/set_selected_sensors_cache_to_loaded"
         });
-        
+
         await dispatch({
             type: "caches/update_selected_sensors_cache",
             payload: selected_sensors_obj
@@ -112,30 +112,32 @@ export const handle_time_increment = createAsyncThunk(
     "caches/handle_time_increment",
     async (amount, { dispatch, getState }) => {
         const state = getState();
-        console.log(state.caches);
-        // if (
-        //     !state.caches.playing
-        //     || state.caches.selected_sensors_cache_state != "loaded"
-        //     || state.caches.playback_cache_state != "loaded"
-        // ) { return; }
-
-        return {}
+        if (
+            !state.caches.playing
+            || state.caches.selected_sensors_cache_state != "loaded"
+            || state.caches.playback_cache_state != "loaded"
+        ) { 
+            return; }
+        
+        await dispatch({ type: "caches/increment_handle_positions" });
+        return {};
     }
 )
 
 export const cachesSlice = createSlice({
     name: "caches",
     initialState: {
-        playing: false,
+        playing: true,
         test: "not tested",
         selected_sensors_cache_state: "loading",
         selected_sensors_cache: [],
-        playback_cache_state: "loading",
+        playback_cache_state: "loaded",
         start_date: new Date("1970").toISOString(),
         end_date: new Date("1970").toISOString(),
         handle_1_date: new Date("1970").toISOString(),
         handle_2_date: new Date("1970").toISOString(),
         sensor_table: [],
+        time_step_size: 1000 * 60 * 3, // three minutes
         most_recent_query: {
             start: new Date("1970").toISOString(),
             end: new Date("1970").toISOString()
@@ -164,6 +166,10 @@ export const cachesSlice = createSlice({
         },
         update_selected_sensors_cache: (state, action) => {
             state.selected_sensors_cache = action.payload;
+        },
+        increment_handle_positions: (state) => {
+            state.handle_1_date = new Date(new Date(state.handle_1_date).getTime() + state.time_step_size).toISOString();
+            state.handle_2_date = new Date(new Date(state.handle_2_date).getTime() + state.time_step_size).toISOString();
         }
     },
     extraReducers: (builder) => {

@@ -14,8 +14,8 @@ import BrushChart from "../Components/Chart";
 
 export default function Todo() {
     const dispatch = useDispatch();
-    const handle_start = useSelector(state => state.caches.start_date);
-    const handle_end = useSelector(state => state.caches.end_date);
+    const handle_start = useSelector(state => state.caches.handle_1_date);
+    const handle_end = useSelector(state => state.caches.handle_2_date);
     const overall_cache_state = useSelector(state => state.caches);
 
     const [is_init_load, set_is_init_load] = useState(true);
@@ -28,6 +28,10 @@ export default function Todo() {
         if (!is_init_load) { return; }
         const load = async () => {
             await dispatch(initial_page_load());
+            await dispatch(update_sensor_list({
+                set_selected_sensors_to_loading: "false",
+                selected_sensors: ["permtemp", "recycleflow"]
+            }));
         }
         load();
         set_is_init_load(false);
@@ -36,7 +40,14 @@ export default function Todo() {
     useEffect(() => {
         set_handle_1_date(new Date(handle_start));
         set_handle_2_date(new Date(handle_end));
-    }, [handle_start, handle_end])
+    }, [handle_start, handle_end]);
+
+    useEffect(() => {
+        const interval = setInterval(async () => {
+            await dispatch(handle_time_increment());
+        }, 0.333e3);
+        return () => clearInterval(interval);
+    }, []);
 
     const selected_sensors_cache_state = useSelector(select_selected_sensors_cache_state);
     const selected_sensors_cache = useSelector(state => state.caches.selected_sensors_cache);
@@ -65,7 +76,11 @@ export default function Todo() {
             on_chart_resize={on_chart_resize}
         />);
 
+    
     return (<div>
+        <div>
+            {handle_start}
+        </div>
         {selected_sensors_cache_state}
         <button
             onClick={() => {
