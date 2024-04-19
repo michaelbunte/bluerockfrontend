@@ -52,6 +52,7 @@ export const update_sensor_list = createAsyncThunk(
             });
         }
 
+
         let state = getState();
 
 
@@ -66,10 +67,11 @@ export const update_sensor_list = createAsyncThunk(
             end: new Date(max_date).toISOString(),
         };
 
-        // query_range = {
-        //     start: get_min_date(state.caches.handle_1_date, state.caches.handle_2_date),
-        //     end: get_max_date(state.caches.handle_1_date, state.caches.handle_2_date),
-        // }
+        // want to discard input if query has already been requested recently
+        let old_first_date = get_min_date(state.caches.most_recent_query.start, state.caches.most_recent_query.end);
+        let old_second_date = get_min_date(state.caches.most_recent_query.start, state.caches.most_recent_query.end);
+
+
 
         await dispatch({
             type: "caches/update_most_recent_query",
@@ -116,10 +118,59 @@ export const handle_time_increment = createAsyncThunk(
             !state.caches.playing
             || state.caches.selected_sensors_cache_state != "loaded"
             || state.caches.playback_cache_state != "loaded"
-        ) { 
-            return; }
-        
+        ) {
+            return;
+        }
+
+        console.log("0000")
+
+        // check if the sensor range is completely invalid
+        // ie, progressing any more will mean that unloaded data will be 
+        // visible on the dashboard
+        let min_date = new Date(Math.min(new Date(state.caches.handle_1_date), new Date(state.caches.handle_2_date)));
+        let max_date = new Date(Math.max(new Date(state.caches.handle_1_date), new Date(state.caches.handle_2_date)));
+        if (
+            min_date < new Date(state.caches.most_recent_query.start)
+            || max_date > new Date(state.caches.most_recent_query.end)
+        ) {
+            await dispatch(update_sensor_list({
+                set_selected_sensors_to_loading: "true",
+                selected_sensors: ["permtemp", "recycleflow"]
+            }));
+            return;
+        }
+
         await dispatch({ type: "caches/increment_handle_positions" });
+
+        let three_quarters_date = new Date((min_date.getTime() + 3 * max_date.getTime()) / 4);
+        let current_date = new Date((min_date.getTime() + max_date.getTime()) / 2);
+
+        // if we are 75% of the way through the visible cache, we would like to 
+        // query another cache.
+        if (three_quarters_date > current_date) {
+            let most_recent_query_start = new Date(state.caches.most_recent_query.start);
+            let most_recent_query_end = new Date(state.caches.most_recent_query.end);
+            let most_recent_query_avg = new Date((most_recent_query_start.getTime() + most_recent_query_end.getTime()) / 2);
+            
+            let window_ratio = Math.abs(most_recent_query_end.getTime() - most_recent_query_start.getTime())/(max_date.getTime() - min_date.getTime());
+            
+            // want to check to see that the most recent query actually 
+            // could actually be a valid cache
+            if (
+                three_quarters_date > most_recent_query_avg
+                || window_ratio > 1.1
+                || window_ratio < 0.9
+                || most_recent_query_start > min_date
+            ) {
+                console.log("problem")
+                // dispatch({
+                //     type: "caches"
+                // })
+            }
+        }
+
+        // TODO: trigger selected sensor list query, but don't set state to loading
+
         return {};
     }
 )
@@ -137,7 +188,7 @@ export const cachesSlice = createSlice({
         handle_1_date: new Date("1970").toISOString(),
         handle_2_date: new Date("1970").toISOString(),
         sensor_table: [],
-        time_step_size: 1000 * 60 * 3, // three minutes
+        time_step_size: 1000 * 60 * 30, // three minutes
         most_recent_query: {
             start: new Date("1970").toISOString(),
             end: new Date("1970").toISOString()
@@ -188,6 +239,10 @@ export const cachesSlice = createSlice({
 
             .addCase(update_sensor_list.rejected, (state, error) => {
                 console.error(error)
+            })
+
+            .addCase(handle_time_increment.rejected, (state, error) => {
+                console.error(error);
             })
     }
 });
