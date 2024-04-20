@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { useDispatch } from 'react-redux';
 
+const CACHE_OVERFLOW_RATIO = 0.5;
+
 const get_min_date = (date_string_1, date_string_2) => {
     return new Date(Math.min(new Date(date_string_1), new Date(date_string_2))).toISOString();
 }
@@ -31,7 +33,6 @@ export const initial_page_load = createAsyncThunk(
     }
 )
 
-
 /*
 args: {
     set_selected_sensors_to_loading: bool,
@@ -60,7 +61,7 @@ export const update_sensor_list = createAsyncThunk(
         let max_date = new Date(get_max_date(state.caches.handle_1_date, state.caches.handle_2_date)).getTime();
         let difference = max_date - min_date;
 
-        max_date = new Date(max_date + difference * 0.5);
+        max_date = new Date(max_date + difference * CACHE_OVERFLOW_RATIO);
 
         let query_range = {
             start: new Date(min_date).toISOString(),
@@ -122,8 +123,6 @@ export const handle_time_increment = createAsyncThunk(
             return;
         }
 
-        console.log("0000")
-
         // check if the sensor range is completely invalid
         // ie, progressing any more will mean that unloaded data will be 
         // visible on the dashboard
@@ -134,7 +133,7 @@ export const handle_time_increment = createAsyncThunk(
             || max_date > new Date(state.caches.most_recent_query.end)
         ) {
             await dispatch(update_sensor_list({
-                set_selected_sensors_to_loading: "true",
+                set_selected_sensors_to_loading: true,
                 selected_sensors: ["permtemp", "recycleflow"]
             }));
             return;
@@ -142,31 +141,28 @@ export const handle_time_increment = createAsyncThunk(
 
         await dispatch({ type: "caches/increment_handle_positions" });
 
-        let three_quarters_date = new Date((min_date.getTime() + 3 * max_date.getTime()) / 4);
-        let current_date = new Date((min_date.getTime() + max_date.getTime()) / 2);
 
-        // if we are 75% of the way through the visible cache, we would like to 
-        // query another cache.
-        if (three_quarters_date > current_date) {
-            let most_recent_query_start = new Date(state.caches.most_recent_query.start);
-            let most_recent_query_end = new Date(state.caches.most_recent_query.end);
-            let most_recent_query_avg = new Date((most_recent_query_start.getTime() + most_recent_query_end.getTime()) / 2);
-            
-            let window_ratio = Math.abs(most_recent_query_end.getTime() - most_recent_query_start.getTime())/(max_date.getTime() - min_date.getTime());
-            
-            // want to check to see that the most recent query actually 
-            // could actually be a valid cache
-            if (
-                three_quarters_date > most_recent_query_avg
-                || window_ratio > 1.1
-                || window_ratio < 0.9
-                || most_recent_query_start > min_date
-            ) {
-                console.log("problem")
-                // dispatch({
-                //     type: "caches"
-                // })
-            }
+        let most_recent_query_start = new Date(state.caches.most_recent_query.start);
+        let most_recent_query_end = new Date(state.caches.most_recent_query.end);
+        let handle_diff = max_date.getTime() - min_date.getTime();
+        let timeout_position = new Date((handle_diff * (1 + CACHE_OVERFLOW_RATIO / 2)) + most_recent_query_start.getTime());
+        let window_ratio = Math.abs(most_recent_query_end.getTime() - most_recent_query_start.getTime()) / (max_date.getTime() - min_date.getTime());
+        // Check to see that the most recent query actually could actually be a
+        // valid cache range.
+        // We check to see that the window width of the last query is roughly
+        // the correct size.
+        // We also see if the last query's max_range is above half of the 
+        // CACHE_OVERFLOW_RATIO, if so, a new request is needed
+        if (
+            max_date > timeout_position
+            || window_ratio < 0.9 + CACHE_OVERFLOW_RATIO
+            || window_ratio > 1.1 + CACHE_OVERFLOW_RATIO
+            || most_recent_query_start > min_date
+        ) {
+            await dispatch(update_sensor_list({
+                set_selected_sensors_to_loading: false,
+                selected_sensors: ["permtemp", "recycleflow"]
+            }));
         }
 
         // TODO: trigger selected sensor list query, but don't set state to loading

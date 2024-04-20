@@ -29,7 +29,7 @@ export default function Todo() {
         const load = async () => {
             await dispatch(initial_page_load());
             await dispatch(update_sensor_list({
-                set_selected_sensors_to_loading: "false",
+                set_selected_sensors_to_loading: false,
                 selected_sensors: ["permtemp", "recycleflow"]
             }));
         }
@@ -58,7 +58,7 @@ export default function Todo() {
         await dispatch(update_handle_1_date(new Date(low).toISOString()));
         await dispatch(update_handle_2_date(new Date(high).toISOString()));
         await dispatch(update_sensor_list({
-            set_selected_sensors_to_loading: "true",
+            set_selected_sensors_to_loading: true,
             selected_sensors: ["permtemp", "recycleflow"]
         }));
     };
@@ -85,16 +85,6 @@ export default function Todo() {
         <button
             onClick={() => {
                 dispatch(set_selected_sensors_cache_to_loaded());
-            }}
-        >enter</button>
-
-        <button
-            onClick={() => {
-                console.log("dispatching")
-                dispatch(update_sensor_list({
-                    set_selected_sensors_to_loading: "false",
-                    selected_sensors: ["permtemp", "recycleflow"]
-                }));
             }}
         >enter</button>
 
