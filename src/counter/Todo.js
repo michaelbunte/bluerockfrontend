@@ -14,6 +14,8 @@ import {
 
 import BrushChart from "../Components/Chart";
 
+import BluerockSchematic from "../Components/BluerockSchematic";
+
 export default function Todo() {
     const dispatch = useDispatch();
     const handle_start = useSelector(state => state.caches.handle_1_date);
@@ -96,9 +98,9 @@ export default function Todo() {
         </div>
 
 
-        <div>
-            {JSON.stringify(overall_cache_state.selected_sensors_cache)}
-        </div>
+        <BluerockSchematic
+            md={sensor_table}
+        />
 
     </div>)
 }
