@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { useSelector, useDispatch } from 'react-redux';
+
 import {
     set_selected_sensors_cache_to_loaded,
     select_selected_sensors_cache_state,
@@ -7,7 +8,8 @@ import {
     update_handle_1_date,
     update_handle_2_date,
     handle_time_increment,
-    update_sensor_list
+    update_sensor_list,
+    select_sensor_table
 } from "./CachesSlice";
 
 import BrushChart from "../Components/Chart";
@@ -16,6 +18,7 @@ export default function Todo() {
     const dispatch = useDispatch();
     const handle_start = useSelector(state => state.caches.handle_1_date);
     const handle_end = useSelector(state => state.caches.handle_2_date);
+    const sensor_table = useSelector(select_sensor_table);
     const overall_cache_state = useSelector(state => state.caches);
 
     const [is_init_load, set_is_init_load] = useState(true);
@@ -76,7 +79,7 @@ export default function Todo() {
             on_chart_resize={on_chart_resize}
         />);
 
-    
+
     return (<div>
         <div>
             {handle_start}

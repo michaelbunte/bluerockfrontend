@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { useDispatch } from 'react-redux';
+import { createSelector } from 'reselect';
 
 const CACHE_OVERFLOW_RATIO = 0.5;
 
@@ -25,8 +26,13 @@ export const initial_page_load = createAsyncThunk(
                 .then(response => response.json()),
         ]);
 
+        const sensor_table_dict = {};
+        sensor_table.forEach(row => {
+            sensor_table_dict[row["internal_data_name"]] = row;
+        });
+
         return {
-            sensor_table: sensor_table,
+            sensor_table: sensor_table_dict,
             start_date: new Date(plcrange[0][0]).toISOString(),
             end_date: new Date(plcrange[plcrange.length - 1][0]).toISOString()
         };
@@ -142,17 +148,17 @@ export const handle_time_increment = createAsyncThunk(
         await dispatch({ type: "caches/increment_handle_positions" });
 
 
-        let most_recent_query_start = new Date(state.caches.most_recent_query.start);
-        let most_recent_query_end = new Date(state.caches.most_recent_query.end);
-        let handle_diff = max_date.getTime() - min_date.getTime();
-        let timeout_position = new Date((handle_diff * (1 + CACHE_OVERFLOW_RATIO / 2)) + most_recent_query_start.getTime());
-        let window_ratio = Math.abs(most_recent_query_end.getTime() - most_recent_query_start.getTime()) / (max_date.getTime() - min_date.getTime());
         // Check to see that the most recent query actually could actually be a
         // valid cache range.
         // We check to see that the window width of the last query is roughly
         // the correct size.
         // We also see if the last query's max_range is above half of the 
         // CACHE_OVERFLOW_RATIO, if so, a new request is needed
+        let most_recent_query_start = new Date(state.caches.most_recent_query.start);
+        let most_recent_query_end = new Date(state.caches.most_recent_query.end);
+        let handle_diff = max_date.getTime() - min_date.getTime();
+        let timeout_position = new Date((handle_diff * (1 + CACHE_OVERFLOW_RATIO / 2)) + most_recent_query_start.getTime());
+        let window_ratio = Math.abs(most_recent_query_end.getTime() - most_recent_query_start.getTime()) / (max_date.getTime() - min_date.getTime());
         if (
             max_date > timeout_position
             || window_ratio < 0.9 + CACHE_OVERFLOW_RATIO
@@ -183,7 +189,7 @@ export const cachesSlice = createSlice({
         end_date: new Date("1970").toISOString(),
         handle_1_date: new Date("1970").toISOString(),
         handle_2_date: new Date("1970").toISOString(),
-        sensor_table: [],
+        sensor_table: {},
         time_step_size: 1000 * 60 * 30, // three minutes
         most_recent_query: {
             start: new Date("1970").toISOString(),
@@ -222,7 +228,6 @@ export const cachesSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(initial_page_load.fulfilled, (state, action) => {
-                console.log("connected to server")
                 state.start_date = action.payload.start_date;
                 state.handle_1_date = action.payload.start_date;
                 state.end_date = action.payload.end_date;
@@ -252,5 +257,30 @@ export const {
 
 export const select_selected_sensors_cache_state =
     (state) => state.caches.selected_sensors_cache_state;
+
+const select_sensor_table_state = state => state.caches.sensor_table;
+
+// createSelector allows for memoizing
+export const select_sensor_table = createSelector(
+    [select_sensor_table_state],
+    sensorTable => {
+        let sensor_table = JSON.parse(JSON.stringify(sensorTable));
+
+        sensor_table["get"] = function (sensorname, field) {
+            if (this === undefined || this[sensorname] === undefined) {
+                return field === "on_click" ? () => { } : "";
+            }
+            return this[sensorname][field];
+        }
+
+        Object.keys(sensor_table).forEach(
+            key => sensor_table[key]["on_click"] = () => { }
+        );
+
+
+        return sensor_table;
+    }
+);
+
 
 export default cachesSlice.reducer;
