@@ -74,12 +74,6 @@ export const update_sensor_list = createAsyncThunk(
             end: new Date(max_date).toISOString(),
         };
 
-        // want to discard input if query has already been requested recently
-        let old_first_date = get_min_date(state.caches.most_recent_query.start, state.caches.most_recent_query.end);
-        let old_second_date = get_min_date(state.caches.most_recent_query.start, state.caches.most_recent_query.end);
-
-
-
         await dispatch({
             type: "caches/update_most_recent_query",
             payload: query_range
@@ -100,6 +94,11 @@ export const update_sensor_list = createAsyncThunk(
         if (first_date != query_range.start || second_date != query_range.end) {
             return;
         }
+
+        await dispatch({
+            type: "caches/update_most_recent_completed_query",
+            payload: query_range
+        });
 
         let selected_sensors_obj = {};
         for (let i = 0; i < selected_sensors.length; i++) {
@@ -135,8 +134,8 @@ export const handle_time_increment = createAsyncThunk(
         let min_date = new Date(Math.min(new Date(state.caches.handle_1_date), new Date(state.caches.handle_2_date)));
         let max_date = new Date(Math.max(new Date(state.caches.handle_1_date), new Date(state.caches.handle_2_date)));
         if (
-            min_date < new Date(state.caches.most_recent_query.start)
-            || max_date > new Date(state.caches.most_recent_query.end)
+            min_date < new Date(state.caches.most_recent_completed_query.start)
+            || max_date > new Date(state.caches.most_recent_completed_query.end)
         ) {
             await dispatch(update_sensor_list({
                 set_selected_sensors_to_loading: true,
@@ -194,6 +193,10 @@ export const cachesSlice = createSlice({
         most_recent_query: {
             start: new Date("1970").toISOString(),
             end: new Date("1970").toISOString()
+        },
+        most_recent_completed_query: {
+            start: new Date("1970").toISOString(),
+            end: new Date("1970").toISOString()
         }
     },
     reducers: {
@@ -207,6 +210,14 @@ export const cachesSlice = createSlice({
             let { start, end } = action.payload;
 
             state.most_recent_query = {
+                start: start,
+                end: end,
+            };
+        },
+        update_most_recent_completed_query: (state, action) => {
+            let { start, end } = action.payload;
+
+            state.most_recent_completed_query = {
                 start: start,
                 end: end,
             };
