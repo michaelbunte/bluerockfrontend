@@ -1,19 +1,24 @@
-import logo from './logo.svg';
 import './App.css';
 import Todo from './counter/Todo';
 import { store } from "./app/store"
 import { Provider } from 'react-redux';
 import React from 'react';
+import AdminLTE from 'adminlte-2-react';
 
 function App() {
   return (
-    <React.StrictMode>
-      <Provider store={store}>
-        <div style={{padding: "20px"}}>
+    // <React.StrictMode>
+    <AdminLTE title={["Hello", "World"]} titleShort={["He", "we"]} theme="blue" >
+
+      <Provider store={store} path="/">
+        <h3>
+          HELLO THERE
+        </h3>
           <Todo />
-        </div>
       </Provider>
-    </React.StrictMode>
+    </AdminLTE>
+
+    // </React.StrictMode>
   );
 }
 

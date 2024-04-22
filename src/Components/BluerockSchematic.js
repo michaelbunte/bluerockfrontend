@@ -576,13 +576,6 @@ function WaterDeliverSystem({ md }) {
 function BluerockSchematic({ md }) {
     return (
         <svg width="100%" height="100%" viewBox="0 0 1205 780">
-            <style>
-                {`
-                    text {
-                        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-                    }
-                `}
-            </style>
             <g transform="translate(-215,0)">
                 <svg width="1420" height="780" viewBox="0 0 1420 780">
                     <FeedTankSystem md={md} />

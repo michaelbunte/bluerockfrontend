@@ -116,6 +116,54 @@ export const update_sensor_list = createAsyncThunk(
     }
 )
 
+
+// Handles updating the cache displaying values on the schematic 
+export const update_playback_cache = createAsyncThunk(
+    "caches/update_playback_cache",
+    async (args, { dispatch, getState }) => {
+        let state = getState();
+        console.log("calling update playback cache")
+
+        let width = new Date(state.caches.most_recent_playback_cache_query.end).getTime() - new Date(state.caches.most_recent_playback_cache_query.start).getTime();
+        let current_time = new Date((new Date(state.caches.handle_1_date).getTime() + new Date(state.caches.handle_2_date).getTime()) / 2);
+        let target_width_size = 300 * state.caches.time_step_size;
+
+        // check if last query width is valid
+        // if not, run a new query
+
+        let query_range = {
+            start: new Date(current_time.getTime() - target_width_size * 0.1).toISOString(),
+            end: new Date(current_time.getTime() + target_width_size * 0.9).toISOString()
+        };
+
+        if (width > target_width_size * 1.1 || width < target_width_size * 0.9) {
+            await dispatch({
+                type: "caches/update_most_recent_playback_cache_query",
+                payload: query_range
+            })
+            let new_cache = await fetch(`http://${host_string}/bluerock/adaptive_all_sensors/${query_range.start}/${query_range.end}`)
+                    .then(response => response.json());
+
+            // TODO: need to check if new_cache is still valid
+            await dispatch({
+                type: "caches/update_playback_cache",
+                payload: new_cache
+            });
+            await dispatch({
+                type: "caches/update_most_recent_completed_playback_cache_query",
+                payload: query_range
+            })
+            return;
+        }
+
+        // if ()
+
+        // check if time is valid ( > 10% and < 80% )
+        // check if last query is valid
+        // if not, requery
+    }
+)
+
 export const handle_time_increment = createAsyncThunk(
     "caches/handle_time_increment",
     async (amount, { dispatch, getState }) => {
@@ -145,6 +193,7 @@ export const handle_time_increment = createAsyncThunk(
         }
 
         await dispatch({ type: "caches/increment_handle_positions" });
+        await dispatch(update_playback_cache());
 
 
         // Check to see that the most recent query actually could actually be a
@@ -176,6 +225,13 @@ export const handle_time_increment = createAsyncThunk(
     }
 )
 
+const TIME_STEP_SIZES = [
+    1000 * 60 * 1,
+    1000 * 60 * 5,
+    1000 * 60 * 10, // 10 * 3 minutes a second
+    1000 * 60 * 30,
+]
+
 export const cachesSlice = createSlice({
     name: "caches",
     initialState: {
@@ -183,18 +239,27 @@ export const cachesSlice = createSlice({
         test: "not tested",
         selected_sensors_cache_state: "loading",
         selected_sensors_cache: [],
+        playback_cache: [],
         playback_cache_state: "loaded",
         start_date: new Date("1970").toISOString(),
         end_date: new Date("1970").toISOString(),
         handle_1_date: new Date("1970").toISOString(),
         handle_2_date: new Date("1970").toISOString(),
         sensor_table: {},
-        time_step_size: 1000 * 60 * 30, // three minutes
+        time_step_size: TIME_STEP_SIZES[0],
         most_recent_query: {
             start: new Date("1970").toISOString(),
             end: new Date("1970").toISOString()
         },
         most_recent_completed_query: {
+            start: new Date("1970").toISOString(),
+            end: new Date("1970").toISOString()
+        },
+        most_recent_playback_cache_query: {
+            start: new Date("1970").toISOString(),
+            end: new Date("1970").toISOString()
+        },
+        most_recent_completed_playback_cache_query: {
             start: new Date("1970").toISOString(),
             end: new Date("1970").toISOString()
         }
@@ -222,6 +287,20 @@ export const cachesSlice = createSlice({
                 end: end,
             };
         },
+        update_most_recent_playback_cache_query: (state, action) => {
+            let { start, end } = action.payload;
+            state.most_recent_playback_cache_query = {
+                start: start,
+                end: end
+            }
+        },
+        update_most_recent_completed_playback_cache_query: (state, action) => {
+            let { start, end } = action.payload;
+            state.most_recent_completed_playback_cache_query = {
+                start: start,
+                end: end
+            }
+        },
         update_handle_1_date: (state, action) => {
             state.handle_1_date = action.payload;
         },
@@ -234,6 +313,9 @@ export const cachesSlice = createSlice({
         increment_handle_positions: (state) => {
             state.handle_1_date = new Date(new Date(state.handle_1_date).getTime() + state.time_step_size).toISOString();
             state.handle_2_date = new Date(new Date(state.handle_2_date).getTime() + state.time_step_size).toISOString();
+        },
+        update_playback_cache: (state, action) => {
+            state.playback_cache = action.payload;
         }
     },
     extraReducers: (builder) => {
