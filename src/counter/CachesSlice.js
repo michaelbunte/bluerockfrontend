@@ -118,15 +118,15 @@ export const update_sensor_list = createAsyncThunk(
 
 
 // Handles updating the cache displaying values on the schematic 
-export const update_playback_cache = createAsyncThunk(
+export const update_playback_cache_async = createAsyncThunk(
     "caches/update_playback_cache",
     async (args, { dispatch, getState }) => {
         let state = getState();
-        console.log("calling update playback cache")
+        console.log("calling playback cache")
 
         let width = new Date(state.caches.most_recent_playback_cache_query.end).getTime() - new Date(state.caches.most_recent_playback_cache_query.start).getTime();
         let current_time = new Date((new Date(state.caches.handle_1_date).getTime() + new Date(state.caches.handle_2_date).getTime()) / 2);
-        let target_width_size = 300 * state.caches.time_step_size;
+        let target_width_size = 30 * state.caches.time_step_size;
 
         // check if last query width is valid
         // if not, run a new query
@@ -142,7 +142,7 @@ export const update_playback_cache = createAsyncThunk(
                 payload: query_range
             })
             let new_cache = await fetch(`http://${host_string}/bluerock/adaptive_all_sensors/${query_range.start}/${query_range.end}`)
-                    .then(response => response.json());
+                .then(response => response.json());
 
             // TODO: need to check if new_cache is still valid
             await dispatch({
@@ -156,9 +156,102 @@ export const update_playback_cache = createAsyncThunk(
             return;
         }
 
-        // if ()
 
-        // check if time is valid ( > 10% and < 80% )
+        let eighty_perc_cutoff_completed =
+            new Date(
+                0.2 * new Date(state.caches.most_recent_completed_playback_cache_query.start).getTime()
+                + 0.8 * new Date(state.caches.most_recent_completed_playback_cache_query.end).getTime()
+            );
+
+        let five_perc_cutoff_completed =
+            new Date(
+                0.95 * new Date(state.caches.most_recent_completed_playback_cache_query.start).getTime()
+                + 0.05 * new Date(state.caches.most_recent_completed_playback_cache_query.end).getTime()
+            );
+
+        let eighty_perc_cutoff =
+            new Date(
+                0.2 * new Date(state.caches.most_recent_playback_cache_query.start).getTime()
+                + 0.8 * new Date(state.caches.most_recent_playback_cache_query.end).getTime()
+            )
+
+        let five_perc_cutoff =
+            new Date(
+                0.95 * new Date(state.caches.most_recent_completed_playback_cache_query.start).getTime()
+                + 0.05 * new Date(state.caches.most_recent_completed_playback_cache_query.end).getTime()
+            );
+
+
+        // // if the most recent request is valid, then don't do anything else
+        // if (
+        //     current_time <= new Date(state.caches.most_recent_completed_playback_cache_query.start)
+        //     ||
+        //     current_time >= new Date(state.caches.most_recent_completed_playback_cache_query.end)
+        // ) {
+
+        // }
+
+        // check if time is completely invalid ( < 0 % or >100%)
+        // then need to actually wait and load
+        if (
+            current_time <= new Date(state.caches.most_recent_completed_playback_cache_query.start)
+            ||
+            current_time >= new Date(state.caches.most_recent_completed_playback_cache_query.end)
+        ) {
+            // can just return if the last request was valid
+            if (!(
+                current_time <= five_perc_cutoff
+                ||
+                current_time >= eighty_perc_cutoff
+            )) {
+                console.log("last request was valid")
+                return;
+            }
+
+            console.log("invalid request")
+            await dispatch({
+                type: "caches/set_playback_cache_state_to_loading"
+            });
+
+            await dispatch({
+                type: "caches/update_most_recent_playback_cache_query",
+                payload: query_range
+            })
+
+            let new_cache = await fetch(`http://${host_string}/bluerock/adaptive_all_sensors/${query_range.start}/${query_range.end}`)
+                .then(response => response.json());
+
+            let state = getState();
+            if (
+                query_range.start != state.caches.most_recent_playback_cache_query.start
+                ||
+                query_range.end != state.caches.most_recent_playback_cache_query.end
+            ) {
+                console.log("discarding")
+                console.log(query_range.start)
+                console.log(state.caches.most_recent_playback_cache_query.start)
+                return;
+            }
+
+            await dispatch({
+                type: "caches/update_most_recent_completed_playback_cache_query",
+                payload: query_range
+            })
+
+            await dispatch({
+                type: "caches/update_playback_cache",
+                payload: new_cache
+            })
+
+            await dispatch({
+                type: "caches/set_playback_cache_state_to_loaded"
+            });
+
+            return;
+
+        }
+
+        // check if time is valid ( > 5% and < 80% )
         // check if last query is valid
         // if not, requery
     }
@@ -193,7 +286,7 @@ export const handle_time_increment = createAsyncThunk(
         }
 
         await dispatch({ type: "caches/increment_handle_positions" });
-        await dispatch(update_playback_cache());
+        await dispatch(update_playback_cache_async());
 
 
         // Check to see that the most recent query actually could actually be a
@@ -270,6 +363,12 @@ export const cachesSlice = createSlice({
         },
         set_selected_sensors_cache_to_loaded: (state) => {
             state.selected_sensors_cache_state = "loaded";
+        },
+        set_playback_cache_state_to_loading: (state) => {
+            state.playback_cache_state = "loading";
+        },
+        set_playback_cache_state_to_loaded: (state) => {
+            state.playback_cache_state = "loaded";
         },
         update_most_recent_query: (state, action) => {
             let { start, end } = action.payload;

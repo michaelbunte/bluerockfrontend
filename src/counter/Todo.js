@@ -22,6 +22,7 @@ export default function Todo() {
     const handle_end = useSelector(state => state.caches.handle_2_date);
     const sensor_table = useSelector(select_sensor_table);
     const overall_cache_state = useSelector(state => state.caches);
+    const playback_cache_state = useSelector(state => state.caches.playback_cache_state);
 
     const [is_init_load, set_is_init_load] = useState(true);
     const [handle_1_date, set_handle_1_date] = useState(new Date());
@@ -81,10 +82,23 @@ export default function Todo() {
             on_chart_resize={on_chart_resize}
         />);
 
+    let playback_cache_start = "";
+    try {
+        playback_cache_start = JSON.stringify(overall_cache_state.playback_cache[0]["plctime"])
+    } catch(e) {}
 
     return (<div>
         <div>
-            {handle_start}
+            {playback_cache_state}
+        </div>
+        <div>
+            most recent completed query: {overall_cache_state.most_recent_completed_playback_cache_query.start} - {overall_cache_state.most_recent_completed_playback_cache_query.end}
+        </div>
+        <div>
+            playback cache start: {playback_cache_start}
+        </div>
+        <div>
+            current time: {new Date((new Date(handle_start).getTime() + new Date(handle_end).getTime())/2).toISOString()}
         </div>
         {selected_sensors_cache_state}
         <button
