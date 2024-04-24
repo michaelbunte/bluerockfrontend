@@ -9,7 +9,8 @@ import {
     update_handle_2_date,
     handle_time_increment,
     update_sensor_list,
-    select_sensor_table
+    select_sensor_table,
+    select_loading
 } from "./CachesSlice";
 
 import BrushChart from "../Components/Chart";
@@ -23,6 +24,7 @@ export default function Todo() {
     const sensor_table = useSelector(select_sensor_table);
     const overall_cache_state = useSelector(state => state.caches);
     const playback_cache_state = useSelector(state => state.caches.playback_cache_state);
+    const are_caches_loading = useSelector(select_loading);
 
     const [is_init_load, set_is_init_load] = useState(true);
     const [handle_1_date, set_handle_1_date] = useState(new Date());
@@ -77,7 +79,7 @@ export default function Todo() {
             brush_2_time={new Date(handle_2_date)}
             set_brush_1_time={set_handle_1_date}
             set_brush_2_time={set_handle_2_date}
-            is_loading={selected_sensors_cache_state == "loading"}
+            is_loading={are_caches_loading}
             data={selected_sensors_cache[sensor_name]}
             on_chart_resize={on_chart_resize}
         />);

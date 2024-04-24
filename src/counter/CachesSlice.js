@@ -204,11 +204,9 @@ export const update_playback_cache_async = createAsyncThunk(
                 ||
                 current_time >= eighty_perc_cutoff
             )) {
-                console.log("last request was valid")
                 return;
             }
 
-            console.log("invalid request")
             await dispatch({
                 type: "caches/set_playback_cache_state_to_loading"
             });
@@ -285,8 +283,7 @@ export const handle_time_increment = createAsyncThunk(
             return;
         }
 
-        await dispatch({ type: "caches/increment_handle_positions" });
-        await dispatch(update_playback_cache_async());
+        await Promise.all([dispatch({ type: "caches/increment_handle_positions" }), dispatch(update_playback_cache_async())])
 
 
         // Check to see that the most recent query actually could actually be a
@@ -449,6 +446,10 @@ export const {
 
 export const select_selected_sensors_cache_state =
     (state) => state.caches.selected_sensors_cache_state;
+
+export const select_loading = state => 
+    state.caches.selected_sensors_cache_state == "loading" 
+    || state.caches.playback_cache_state == "loading" ;
 
 const select_sensor_table_state = state => state.caches.sensor_table;
 
