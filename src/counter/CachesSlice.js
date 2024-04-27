@@ -126,7 +126,7 @@ export const update_playback_cache_async = createAsyncThunk(
 
         let width = new Date(state.caches.most_recent_playback_cache_query.end).getTime() - new Date(state.caches.most_recent_playback_cache_query.start).getTime();
         let current_time = new Date((new Date(state.caches.handle_1_date).getTime() + new Date(state.caches.handle_2_date).getTime()) / 2);
-        let target_width_size = 30 * state.caches.time_step_size;
+        let target_width_size = 100 * state.caches.time_step_size;
 
         // check if last query width is valid
         // if not, run a new query

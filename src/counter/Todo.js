@@ -17,6 +17,34 @@ import BrushChart from "../Components/Chart";
 
 import BluerockSchematic from "../Components/BluerockSchematic";
 
+function binarySearchNearestTime(arr, targetTime) {
+    let target_time_millis = new Date(targetTime).getTime();
+    let left = 0;
+    let right = arr.length - 1;
+    let nearestIndex = -1;
+    let minDiff = Infinity;
+
+    while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+        const midTime = new Date(arr[mid]["timezone"]).getTime();
+        const diff = Math.abs(midTime - target_time_millis);
+        
+        if (diff < minDiff) {
+            nearestIndex = mid;
+            minDiff = diff;
+        }
+
+        if (midTime ===  target_time_millis) {
+            return mid; // Exact match found
+        } else if (midTime <  target_time_millis) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    return nearestIndex;
+}
+
 export default function Todo() {
     const dispatch = useDispatch();
     const handle_start = useSelector(state => state.caches.handle_1_date);
@@ -86,22 +114,39 @@ export default function Todo() {
         />);
 
     let playback_cache_start = "";
+    let playback_cache_end = "";
     try {
         playback_cache_start = JSON.stringify(overall_cache_state.playback_cache[0]["timezone"])
+        playback_cache_end = JSON.stringify(overall_cache_state.playback_cache[overall_cache_state.playback_cache.length - 1]["timezone"])
     } catch(e) {}
 
+
+    let current_time = new Date((new Date(handle_start).getTime() + new Date(handle_end).getTime())/2).toISOString();
+    let bin = binarySearchNearestTime(playback_cache, current_time);
+
     return (<div>
+        <BrushChart 
+            brush_1_time={new Date("2020")}
+            brush_2_time={new Date("2021")}
+            data={playback_cache.map(x=>[new Date(x["timezone"]).getTime(),x["permtemp"]])}
+        />
+        {/* <div>
+            {JSON.stringify(playback_cache.map(x=>[x["timezone"],x["permtemp"]]))}
+        </div> */}
+        <div>
+            bin cache pos: {bin}
+        </div>
+        <div>
+            length: {playback_cache.length}
+        </div>
         <div>
             {playback_cache_state}
         </div>
         <div>
-            most recent completed query: {overall_cache_state.most_recent_completed_playback_cache_query.start} - {overall_cache_state.most_recent_completed_playback_cache_query.end}
+            playback cache range: {playback_cache_start} - {playback_cache_end}
         </div>
         <div>
-            playback cache start: {playback_cache_start}
-        </div>
-        <div>
-            current time: {new Date((new Date(handle_start).getTime() + new Date(handle_end).getTime())/2).toISOString()}
+            current time: {current_time}
         </div>
         {selected_sensors_cache_state}
         <button
@@ -115,7 +160,7 @@ export default function Todo() {
         </div>
 
         <div>
-            {JSON.stringify(playback_cache)}
+            {/* {JSON.stringify(playback_cache)} */}
         </div>
 
 
