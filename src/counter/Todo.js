@@ -25,6 +25,7 @@ export default function Todo() {
     const overall_cache_state = useSelector(state => state.caches);
     const playback_cache_state = useSelector(state => state.caches.playback_cache_state);
     const are_caches_loading = useSelector(select_loading);
+    const playback_cache = useSelector(state => state.caches.playback_cache);
 
     const [is_init_load, set_is_init_load] = useState(true);
     const [handle_1_date, set_handle_1_date] = useState(new Date());
@@ -86,7 +87,7 @@ export default function Todo() {
 
     let playback_cache_start = "";
     try {
-        playback_cache_start = JSON.stringify(overall_cache_state.playback_cache[0]["plctime"])
+        playback_cache_start = JSON.stringify(overall_cache_state.playback_cache[0]["timezone"])
     } catch(e) {}
 
     return (<div>
@@ -111,6 +112,10 @@ export default function Todo() {
 
         <div>
             {charts}
+        </div>
+
+        <div>
+            {JSON.stringify(playback_cache)}
         </div>
 
 
