@@ -12,7 +12,7 @@ const get_max_date = (date_string_1, date_string_2) => {
     return new Date(Math.max(new Date(date_string_1), new Date(date_string_2))).toISOString();
 }
 
-const binarySearchNearestTime = (arr, targetTime) => {
+export const binarySearchNearestTime = (arr, targetTime) => {
     let target_time_millis = new Date(targetTime).getTime();
     let left = 0;
     let right = arr.length - 1;
@@ -154,7 +154,7 @@ export const update_playback_cache_async = createAsyncThunk(
 
         let width = new Date(state.caches.most_recent_playback_cache_query.end).getTime() - new Date(state.caches.most_recent_playback_cache_query.start).getTime();
         let current_time = new Date((new Date(state.caches.handle_1_date).getTime() + new Date(state.caches.handle_2_date).getTime()) / 2);
-        let target_width_size = 100 * state.caches.time_step_size;
+        let target_width_size = 300 * state.caches.time_step_size;
 
         // check if last query width is valid
         // if not, run a new query

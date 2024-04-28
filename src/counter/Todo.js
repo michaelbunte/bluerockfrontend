@@ -10,40 +10,13 @@ import {
     handle_time_increment,
     update_sensor_list,
     select_sensor_table,
-    select_loading
+    select_loading,
+    binarySearchNearestTime
 } from "./CachesSlice";
 
 import BrushChart from "../Components/Chart";
 
 import BluerockSchematic from "../Components/BluerockSchematic";
-
-function binarySearchNearestTime(arr, targetTime) {
-    let target_time_millis = new Date(targetTime).getTime();
-    let left = 0;
-    let right = arr.length - 1;
-    let nearestIndex = -1;
-    let minDiff = Infinity;
-
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-        const midTime = new Date(arr[mid]["timezone"]).getTime();
-        const diff = Math.abs(midTime - target_time_millis);
-        
-        if (diff < minDiff) {
-            nearestIndex = mid;
-            minDiff = diff;
-        }
-
-        if (midTime ===  target_time_millis) {
-            return mid; // Exact match found
-        } else if (midTime <  target_time_millis) {
-            left = mid + 1;
-        } else {
-            right = mid - 1;
-        }
-    }
-    return nearestIndex;
-}
 
 export default function Todo() {
     const dispatch = useDispatch();
