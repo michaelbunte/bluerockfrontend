@@ -12,7 +12,9 @@ import {
     select_sensor_table,
     select_loading,
     binarySearchNearestTime,
-    toggle_playback
+    toggle_playback,
+    select_playback_speed,
+    change_to_next_time_step_and_refresh
 } from "./CachesSlice";
 
 import BrushChart from "../Components/Chart";
@@ -29,6 +31,7 @@ export default function Todo() {
     const are_caches_loading = useSelector(select_loading);
     const is_playing = useSelector(state => state.caches.playing)
     const playback_cache = useSelector(state => state.caches.playback_cache);
+    const playback_speed = useSelector(select_playback_speed);
 
     const [is_init_load, set_is_init_load] = useState(true);
     const [handle_1_date, set_handle_1_date] = useState(new Date());
@@ -100,14 +103,17 @@ export default function Todo() {
     let bin = binarySearchNearestTime(playback_cache, current_time);
 
     return (<div>
-        <BrushChart
+        {/* <BrushChart
             brush_1_time={new Date("2020")}
             brush_2_time={new Date("2021")}
             data={playback_cache.map(x => [new Date(x["timezone"]).getTime(), x["permtemp"]])}
-        />
+        /> */}
         {/* <div>
             {JSON.stringify(playback_cache.map(x=>[x["timezone"],x["permtemp"]]))}
         </div> */}
+        <div>
+            playback_speed: {playback_speed}
+        </div>
         <div>
             bin cache pos: {bin}
         </div>
@@ -123,32 +129,25 @@ export default function Todo() {
         <div>
             current time: {current_time}
         </div>
-        {selected_sensors_cache_state}
-        <button
-            onClick={() => {
-                dispatch(set_selected_sensors_cache_to_loaded());
-            }}
-        >enter</button>
 
-        <div>
-            {charts}
-        </div>
+
 
         <div>
             {/* {JSON.stringify(playback_cache)} */}
         </div>
-
         <div>
-
-        <div>
+            <div>
                 <div style={{ display: "flex", alignItems: "center" }}>
                     <ButtonGroup>
                         <Button
                             text={is_playing
                                 ? <div style={{ letterSpacing: "-2px" }}>▮▮</div>
                                 : <div>▶</div>}
-                            onClick={()=>dispatch(toggle_playback())}
+                            onClick={() => dispatch(toggle_playback())}
                         />
+                        <Button
+                            text={<div style={{ letterSpacing: "-3px" }}>▶▶</div>}
+                            onClick={() => {dispatch(change_to_next_time_step_and_refresh())} }/>
                     </ButtonGroup>
                     <div style={{ paddingLeft: "20px" }}>
                         {/* {!ticking ? "paused" : playback_speed.get_current_speed()} */}
@@ -158,6 +157,10 @@ export default function Todo() {
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div>
+            {charts}
         </div>
 
         <BluerockSchematic

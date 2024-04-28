@@ -154,7 +154,7 @@ export const update_playback_cache_async = createAsyncThunk(
 
         let width = new Date(state.caches.most_recent_playback_cache_query.end).getTime() - new Date(state.caches.most_recent_playback_cache_query.start).getTime();
         let current_time = new Date((new Date(state.caches.handle_1_date).getTime() + new Date(state.caches.handle_2_date).getTime()) / 2);
-        let target_width_size = 300 * state.caches.time_step_size;
+        let target_width_size = 300 * get_time_step_size(state.caches.time_step_index);
 
         // check if last query width is valid
         // if not, run a new query
@@ -166,13 +166,21 @@ export const update_playback_cache_async = createAsyncThunk(
 
         if (width > target_width_size * 1.1 || width < target_width_size * 0.9) {
             await dispatch({
+                type: "caches/set_playback_cache_state_to_loading"
+            });
+            await dispatch({
                 type: "caches/update_most_recent_playback_cache_query",
                 payload: query_range
             })
+
             let new_cache = await fetch(`http://${host_string}/bluerock/adaptive_all_sensors/${query_range.start}/${query_range.end}`)
                 .then(response => response.json());
 
             // TODO: need to check if new_cache is still valid
+
+            await dispatch({
+                type: "caches/set_playback_cache_state_to_loaded"
+            });
             await dispatch({
                 type: "caches/update_playback_cache",
                 payload: new_cache
@@ -234,9 +242,6 @@ export const update_playback_cache_async = createAsyncThunk(
                 ||
                 query_range.end != state.caches.most_recent_playback_cache_query.end
             ) {
-                console.log("discarding")
-                console.log(query_range.start)
-                console.log(state.caches.most_recent_playback_cache_query.start)
                 return;
             }
 
@@ -293,7 +298,7 @@ export const update_playback_cache_async = createAsyncThunk(
             )) {
                 return;
             }
-            
+
             await handle_playback_cache_request();
             return;
         }
@@ -372,6 +377,22 @@ const TIME_STEP_SIZES = [
     1000 * 60 * 30,
 ]
 
+const get_time_step_size = (idx) => {
+    try {
+        return TIME_STEP_SIZES[idx];
+    } catch (e) {
+        return TIME_STEP_SIZES[0];
+    }
+}
+
+export const change_to_next_time_step_and_refresh = createAsyncThunk(
+    "caches/change_to_next_time_step_and_refresh",
+    async (amount, { dispatch, getState }) => {
+        await dispatch({type: "caches/change_to_next_time_step"});
+        await dispatch(update_playback_cache_async());
+    }
+);
+
 export const cachesSlice = createSlice({
     name: "caches",
     initialState: {
@@ -386,7 +407,7 @@ export const cachesSlice = createSlice({
         handle_1_date: new Date("1970").toISOString(),
         handle_2_date: new Date("1970").toISOString(),
         sensor_table: {},
-        time_step_size: TIME_STEP_SIZES[0],
+        time_step_index: 0,
         most_recent_query: {
             start: new Date("1970").toISOString(),
             end: new Date("1970").toISOString()
@@ -405,8 +426,11 @@ export const cachesSlice = createSlice({
         }
     },
     reducers: {
+        change_to_next_time_step: (state) => {
+            state.time_step_index = (state.time_step_index + 1) % TIME_STEP_SIZES.length;
+        },
         toggle_playback: (state) => {
-            state.playing = ! state.playing;
+            state.playing = !state.playing;
         },
         set_selected_sensors_cache_to_loading: (state) => {
             state.selected_sensors_cache_state = "loading";
@@ -460,8 +484,8 @@ export const cachesSlice = createSlice({
             state.selected_sensors_cache = action.payload;
         },
         increment_handle_positions: (state) => {
-            state.handle_1_date = new Date(new Date(state.handle_1_date).getTime() + state.time_step_size).toISOString();
-            state.handle_2_date = new Date(new Date(state.handle_2_date).getTime() + state.time_step_size).toISOString();
+            state.handle_1_date = new Date(new Date(state.handle_1_date).getTime() + get_time_step_size(state.time_step_index)).toISOString();
+            state.handle_2_date = new Date(new Date(state.handle_2_date).getTime() + get_time_step_size(state.time_step_index)).toISOString();
         },
         update_playback_cache: (state, action) => {
             state.playback_cache = action.payload;
@@ -495,7 +519,8 @@ export const {
     set_selected_sensors_cache_to_loaded,
     update_handle_1_date,
     update_handle_2_date,
-    toggle_playback
+    toggle_playback,
+    change_to_next_time_step
 } = cachesSlice.actions;
 
 export const select_selected_sensors_cache_state =
@@ -504,6 +529,8 @@ export const select_selected_sensors_cache_state =
 export const select_loading = state =>
     state.caches.selected_sensors_cache_state == "loading"
     || state.caches.playback_cache_state == "loading";
+
+export const select_playback_speed = state => get_time_step_size(state.caches.time_step_index);
 
 const select_sensor_table_state = state => state.caches.sensor_table;
 
