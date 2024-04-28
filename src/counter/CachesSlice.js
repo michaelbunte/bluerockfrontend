@@ -405,6 +405,9 @@ export const cachesSlice = createSlice({
         }
     },
     reducers: {
+        toggle_playback: (state) => {
+            state.playing = ! state.playing;
+        },
         set_selected_sensors_cache_to_loading: (state) => {
             state.selected_sensors_cache_state = "loading";
         },
@@ -491,7 +494,8 @@ export const {
     set_selected_sensors_cache_to_loading,
     set_selected_sensors_cache_to_loaded,
     update_handle_1_date,
-    update_handle_2_date
+    update_handle_2_date,
+    toggle_playback
 } = cachesSlice.actions;
 
 export const select_selected_sensors_cache_state =

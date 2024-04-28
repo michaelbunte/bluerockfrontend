@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useSelector, useDispatch } from 'react-redux';
-
+import { Button, ButtonGroup } from 'adminlte-2-react';
 import {
     set_selected_sensors_cache_to_loaded,
     select_selected_sensors_cache_state,
@@ -11,7 +11,8 @@ import {
     update_sensor_list,
     select_sensor_table,
     select_loading,
-    binarySearchNearestTime
+    binarySearchNearestTime,
+    toggle_playback
 } from "./CachesSlice";
 
 import BrushChart from "../Components/Chart";
@@ -26,6 +27,7 @@ export default function Todo() {
     const overall_cache_state = useSelector(state => state.caches);
     const playback_cache_state = useSelector(state => state.caches.playback_cache_state);
     const are_caches_loading = useSelector(select_loading);
+    const is_playing = useSelector(state => state.caches.playing)
     const playback_cache = useSelector(state => state.caches.playback_cache);
 
     const [is_init_load, set_is_init_load] = useState(true);
@@ -91,17 +93,17 @@ export default function Todo() {
     try {
         playback_cache_start = JSON.stringify(overall_cache_state.playback_cache[0]["timezone"])
         playback_cache_end = JSON.stringify(overall_cache_state.playback_cache[overall_cache_state.playback_cache.length - 1]["timezone"])
-    } catch(e) {}
+    } catch (e) { }
 
 
-    let current_time = new Date((new Date(handle_start).getTime() + new Date(handle_end).getTime())/2).toISOString();
+    let current_time = new Date((new Date(handle_start).getTime() + new Date(handle_end).getTime()) / 2).toISOString();
     let bin = binarySearchNearestTime(playback_cache, current_time);
 
     return (<div>
-        <BrushChart 
+        <BrushChart
             brush_1_time={new Date("2020")}
             brush_2_time={new Date("2021")}
-            data={playback_cache.map(x=>[new Date(x["timezone"]).getTime(),x["permtemp"]])}
+            data={playback_cache.map(x => [new Date(x["timezone"]).getTime(), x["permtemp"]])}
         />
         {/* <div>
             {JSON.stringify(playback_cache.map(x=>[x["timezone"],x["permtemp"]]))}
@@ -136,6 +138,27 @@ export default function Todo() {
             {/* {JSON.stringify(playback_cache)} */}
         </div>
 
+        <div>
+
+        <div>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                    <ButtonGroup>
+                        <Button
+                            text={is_playing
+                                ? <div style={{ letterSpacing: "-2px" }}>▮▮</div>
+                                : <div>▶</div>}
+                            onClick={()=>dispatch(toggle_playback())}
+                        />
+                    </ButtonGroup>
+                    <div style={{ paddingLeft: "20px" }}>
+                        {/* {!ticking ? "paused" : playback_speed.get_current_speed()} */}
+                    </div>
+                    <div style={{ paddingLeft: "20px" }}>
+                        <div style={{ fontWeight: "bold" }}>Target Time:</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <BluerockSchematic
             md={sensor_table}
