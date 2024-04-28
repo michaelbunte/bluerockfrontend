@@ -11,9 +11,6 @@ function App() {
     <AdminLTE title={["Hello", "World"]} titleShort={["He", "we"]} theme="blue" >
 
       <Provider store={store} path="/">
-        <h3>
-          HELLO THERE
-        </h3>
           <Todo />
       </Provider>
     </AdminLTE>

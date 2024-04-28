@@ -17,6 +17,13 @@ import {
     change_to_next_time_step_and_refresh
 } from "./CachesSlice";
 
+import {
+    useWindowDimensions,
+    CenteredBox,
+    PrettyBox
+} from "../Components/helperfuncs";
+import { Box, Col, Row, Content } from 'adminlte-2-react';
+
 import BrushChart from "../Components/Chart";
 
 import BluerockSchematic from "../Components/BluerockSchematic";
@@ -36,6 +43,8 @@ export default function Todo() {
     const [is_init_load, set_is_init_load] = useState(true);
     const [handle_1_date, set_handle_1_date] = useState(new Date());
     const [handle_2_date, set_handle_2_date] = useState(new Date());
+
+    const { height, width } = useWindowDimensions();
 
     useEffect(() => {
         // ensures this can only run once
@@ -103,14 +112,40 @@ export default function Todo() {
     let bin = binarySearchNearestTime(playback_cache, current_time);
 
     return (<div>
-        {/* <BrushChart
-            brush_1_time={new Date("2020")}
-            brush_2_time={new Date("2021")}
-            data={playback_cache.map(x => [new Date(x["timezone"]).getTime(), x["permtemp"]])}
-        /> */}
-        {/* <div>
-            {JSON.stringify(playback_cache.map(x=>[x["timezone"],x["permtemp"]]))}
-        </div> */}
+
+        <CenteredBox style={{ "background": "rgba(0,0,0,0)", "borderWidth": "0px" }}>
+            <Row>
+                <Col md={8}>
+                    <PrettyBox contents={
+                        <BluerockSchematic
+                            md={sensor_table}
+                        />
+                    } />
+                    <PrettyBox contents={
+                        <>
+                            <ButtonGroup>
+                                <Button
+                                    text={is_playing
+                                        ? <div style={{ letterSpacing: "-2px" }}>▮▮</div>
+                                        : <div>▶</div>}
+                                    onClick={() => dispatch(toggle_playback())}
+                                />
+                                <Button
+                                    text={<div style={{ letterSpacing: "-3px" }}>▶▶</div>}
+                                    onClick={() => { dispatch(change_to_next_time_step_and_refresh()) }} />
+                            </ButtonGroup>
+                        </>
+                    } />
+                </Col>
+                <Col md={4} style={{width: "695px"}}>
+                    <PrettyBox contents={
+                        <>
+                            {charts}
+                        </>
+                    } />
+                </Col>
+            </Row>
+        </CenteredBox>
         <div>
             playback_speed: {playback_speed}
         </div>
@@ -131,41 +166,32 @@ export default function Todo() {
         </div>
 
 
-
         <div>
             {/* {JSON.stringify(playback_cache)} */}
         </div>
         <div>
-            <div>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                    <ButtonGroup>
-                        <Button
-                            text={is_playing
-                                ? <div style={{ letterSpacing: "-2px" }}>▮▮</div>
-                                : <div>▶</div>}
-                            onClick={() => dispatch(toggle_playback())}
-                        />
-                        <Button
-                            text={<div style={{ letterSpacing: "-3px" }}>▶▶</div>}
-                            onClick={() => {dispatch(change_to_next_time_step_and_refresh())} }/>
-                    </ButtonGroup>
-                    <div style={{ paddingLeft: "20px" }}>
-                        {/* {!ticking ? "paused" : playback_speed.get_current_speed()} */}
-                    </div>
-                    <div style={{ paddingLeft: "20px" }}>
-                        <div style={{ fontWeight: "bold" }}>Target Time:</div>
-                    </div>
+            <div style={{ display: "flex", alignItems: "center" }}>
+                <ButtonGroup>
+                    <Button
+                        text={is_playing
+                            ? <div style={{ letterSpacing: "-2px" }}>▮▮</div>
+                            : <div>▶</div>}
+                        onClick={() => dispatch(toggle_playback())}
+                    />
+                    <Button
+                        text={<div style={{ letterSpacing: "-3px" }}>▶▶</div>}
+                        onClick={() => { dispatch(change_to_next_time_step_and_refresh()) }} />
+                </ButtonGroup>
+                <div style={{ paddingLeft: "20px" }}>
+                    {/* {!ticking ? "paused" : playback_speed.get_current_speed()} */}
+                </div>
+                <div style={{ paddingLeft: "20px" }}>
+                    <div style={{ fontWeight: "bold" }}>Target Time:</div>
                 </div>
             </div>
         </div>
 
-        <div>
-            {charts}
-        </div>
 
-        <BluerockSchematic
-            md={sensor_table}
-        />
 
     </div>)
 }
