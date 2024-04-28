@@ -12,6 +12,34 @@ const get_max_date = (date_string_1, date_string_2) => {
     return new Date(Math.max(new Date(date_string_1), new Date(date_string_2))).toISOString();
 }
 
+const binarySearchNearestTime = (arr, targetTime) => {
+    let target_time_millis = new Date(targetTime).getTime();
+    let left = 0;
+    let right = arr.length - 1;
+    let nearestIndex = -1;
+    let minDiff = Infinity;
+
+    while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+        const midTime = new Date(arr[mid]["timezone"]).getTime();
+        const diff = Math.abs(midTime - target_time_millis);
+
+        if (diff < minDiff) {
+            nearestIndex = mid;
+            minDiff = diff;
+        }
+
+        if (midTime === target_time_millis) {
+            return mid; // Exact match found
+        } else if (midTime < target_time_millis) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    return nearestIndex;
+}
+
 
 let host_string = "ec2-54-215-192-153.us-west-1.compute.amazonaws.com:5001";
 // fetch(`http://${host_string}/bluerock/adaptive_all_history/${selected_sensor}/${cache_size["start"].toISOString()}/${cache_size["end"].toISOString()}`);
@@ -447,16 +475,21 @@ export const {
 export const select_selected_sensors_cache_state =
     (state) => state.caches.selected_sensors_cache_state;
 
-export const select_loading = state => 
-    state.caches.selected_sensors_cache_state == "loading" 
-    || state.caches.playback_cache_state == "loading" ;
+export const select_loading = state =>
+    state.caches.selected_sensors_cache_state == "loading"
+    || state.caches.playback_cache_state == "loading";
 
 const select_sensor_table_state = state => state.caches.sensor_table;
 
 // createSelector allows for memoizing
 export const select_sensor_table = createSelector(
-    [select_sensor_table_state],
-    sensorTable => {
+    [
+        select_sensor_table_state,
+        state => state.caches.handle_1_date,
+        state => state.caches.handle_2_date,
+        state => state.caches.playback_cache
+    ],
+    (sensorTable, handle_1_date, handle_2_date, playback_cache) => {
         let sensor_table = JSON.parse(JSON.stringify(sensorTable));
 
         sensor_table["get"] = function (sensorname, field) {
@@ -466,8 +499,18 @@ export const select_sensor_table = createSelector(
             return this[sensorname][field];
         }
 
+        let current_time = (new Date(handle_1_date).getTime() + new Date(handle_2_date).getTime()) / 2;
+        let curr_idx = binarySearchNearestTime(playback_cache, current_time);
+
         Object.keys(sensor_table).forEach(
-            key => sensor_table[key]["on_click"] = () => { }
+            key => {
+                sensor_table[key]["on_click"] = () => { }
+                try {
+                    sensor_table[key]["current_value"] = playback_cache[curr_idx][key];
+                } catch (e) {
+                    sensor_table[key]["current_value"] = undefined;
+                }
+            }
         );
 
 
