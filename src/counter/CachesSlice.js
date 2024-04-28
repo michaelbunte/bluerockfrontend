@@ -219,26 +219,7 @@ export const update_playback_cache_async = createAsyncThunk(
 
         // }
 
-        // check if time is completely invalid ( < 0 % or >100%)
-        // then need to actually wait and load
-        if (
-            current_time <= new Date(state.caches.most_recent_completed_playback_cache_query.start)
-            ||
-            current_time >= new Date(state.caches.most_recent_completed_playback_cache_query.end)
-        ) {
-            // can just return if the last request was valid
-            if (!(
-                current_time <= five_perc_cutoff
-                ||
-                current_time >= eighty_perc_cutoff
-            )) {
-                return;
-            }
-
-            await dispatch({
-                type: "caches/set_playback_cache_state_to_loading"
-            });
-
+        async function handle_playback_cache_request() {
             await dispatch({
                 type: "caches/update_most_recent_playback_cache_query",
                 payload: query_range
@@ -272,10 +253,51 @@ export const update_playback_cache_async = createAsyncThunk(
             await dispatch({
                 type: "caches/set_playback_cache_state_to_loaded"
             });
-
-            return;
-
         }
+
+        // check if time is completely invalid ( < 0 % or >100%)
+        // then need to actually wait and load
+        if (
+            current_time <= new Date(state.caches.most_recent_completed_playback_cache_query.start)
+            ||
+            current_time >= new Date(state.caches.most_recent_completed_playback_cache_query.end)
+        ) {
+            // can just return if the last request was valid
+            if (!(
+                current_time <= five_perc_cutoff
+                ||
+                current_time >= eighty_perc_cutoff
+            )) {
+                return;
+            }
+
+            await dispatch({
+                type: "caches/set_playback_cache_state_to_loading"
+            });
+            await handle_playback_cache_request();
+            return;
+        }
+
+        // check to see if cache is close to being exhausted (but not entirely)
+        // if so, request a new cache, but don't ask for any loads
+        if (
+            current_time <= five_perc_cutoff_completed
+            ||
+            current_time >= eighty_perc_cutoff_completed
+        ) {
+            // can just return if the last request was valid
+            if (!(
+                current_time <= five_perc_cutoff
+                ||
+                current_time >= eighty_perc_cutoff
+            )) {
+                return;
+            }
+            
+            await handle_playback_cache_request();
+            return;
+        }
+
 
         // check if time is valid ( > 5% and < 80% )
         // check if last query is valid
