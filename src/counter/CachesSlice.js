@@ -2,6 +2,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { useDispatch } from 'react-redux';
 import { createSelector } from 'reselect';
 
+export const PLAYBACK_HZ = 3;
+
 const CACHE_OVERFLOW_RATIO = 0.5;
 
 const get_min_date = (date_string_1, date_string_2) => {
@@ -371,24 +373,33 @@ export const handle_time_increment = createAsyncThunk(
 )
 
 const TIME_STEP_SIZES = [
-    1000 * 60 * 1,
-    1000 * 60 * 5,
-    1000 * 60 * 10, // 10 * 3 minutes a second
-    1000 * 60 * 30,
+    [1000 * 60 * 1 / PLAYBACK_HZ, "1 minute a second"],
+    [1000 * 60 * 3 / PLAYBACK_HZ, "3 minutes a second"],
+    [1000 * 60 * 5 / PLAYBACK_HZ, "5 minutes a second"],
+    [1000 * 60 * 10 / PLAYBACK_HZ, "10 minutes a second"],
+    [1000 * 60 * 20 / PLAYBACK_HZ, "20 minutes a second"]
 ]
 
 const get_time_step_size = (idx) => {
     try {
-        return TIME_STEP_SIZES[idx];
+        return TIME_STEP_SIZES[idx][0];
     } catch (e) {
-        return TIME_STEP_SIZES[0];
+        return TIME_STEP_SIZES[0][0];
+    }
+}
+
+const get_time_step_name = (idx) => {
+    try {
+        return TIME_STEP_SIZES[idx][1];
+    } catch (e) {
+        return TIME_STEP_SIZES[0][1];
     }
 }
 
 export const change_to_next_time_step_and_refresh = createAsyncThunk(
     "caches/change_to_next_time_step_and_refresh",
     async (amount, { dispatch, getState }) => {
-        await dispatch({type: "caches/change_to_next_time_step"});
+        await dispatch({ type: "caches/change_to_next_time_step" });
         await dispatch(update_playback_cache_async());
     }
 );
@@ -531,6 +542,8 @@ export const select_loading = state =>
     || state.caches.playback_cache_state == "loading";
 
 export const select_playback_speed = state => get_time_step_size(state.caches.time_step_index);
+
+export const select_playback_speed_name = state => get_time_step_name(state.caches.time_step_index);
 
 const select_sensor_table_state = state => state.caches.sensor_table;
 

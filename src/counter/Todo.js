@@ -14,7 +14,9 @@ import {
     binarySearchNearestTime,
     toggle_playback,
     select_playback_speed,
-    change_to_next_time_step_and_refresh
+    change_to_next_time_step_and_refresh,
+    PLAYBACK_HZ,
+    select_playback_speed_name
 } from "./CachesSlice";
 
 import {
@@ -28,6 +30,13 @@ import BrushChart from "../Components/Chart";
 
 import BluerockSchematic from "../Components/BluerockSchematic";
 
+function MiniCard({ top="", bottom="" }) {
+    return <div style={{ padding: "4px", background: "white", margin: "2.5px", borderRadius: "3px", boxShadow: "6px 6px 5px 0px rgba(0,0,0,0.1)"}}>
+        <div> {top} </div>
+        <div> {bottom} </div>
+    </div>
+}
+
 export default function Todo() {
     const dispatch = useDispatch();
     const handle_start = useSelector(state => state.caches.handle_1_date);
@@ -38,13 +47,11 @@ export default function Todo() {
     const are_caches_loading = useSelector(select_loading);
     const is_playing = useSelector(state => state.caches.playing)
     const playback_cache = useSelector(state => state.caches.playback_cache);
-    const playback_speed = useSelector(select_playback_speed);
+    const playback_speed = useSelector(select_playback_speed_name);
 
     const [is_init_load, set_is_init_load] = useState(true);
     const [handle_1_date, set_handle_1_date] = useState(new Date());
     const [handle_2_date, set_handle_2_date] = useState(new Date());
-
-    const { height, width } = useWindowDimensions();
 
     useEffect(() => {
         // ensures this can only run once
@@ -69,7 +76,7 @@ export default function Todo() {
     useEffect(() => {
         const interval = setInterval(async () => {
             await dispatch(handle_time_increment());
-        }, 0.333e3);
+        }, 1000 / PLAYBACK_HZ);
         return () => clearInterval(interval);
     }, []);
 
@@ -115,29 +122,43 @@ export default function Todo() {
 
         <CenteredBox style={{ "background": "rgba(0,0,0,0)", "borderWidth": "0px" }}>
             <Row>
-                <Col md={8}>
+                <Col md={7}>
                     <PrettyBox contents={
                         <BluerockSchematic
                             md={sensor_table}
                         />
                     } />
                     <PrettyBox contents={
-                        <>
-                            <ButtonGroup>
-                                <Button
-                                    text={is_playing
-                                        ? <div style={{ letterSpacing: "-2px" }}>▮▮</div>
-                                        : <div>▶</div>}
-                                    onClick={() => dispatch(toggle_playback())}
-                                />
-                                <Button
-                                    text={<div style={{ letterSpacing: "-3px" }}>▶▶</div>}
-                                    onClick={() => { dispatch(change_to_next_time_step_and_refresh()) }} />
-                            </ButtonGroup>
-                        </>
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                            <div style={{ padding: "10px" }}>
+                                <ButtonGroup>
+                                    <Button
+                                        text={is_playing
+                                            ? <div style={{ letterSpacing: "-2px" }}>▮▮</div>
+                                            : <div>▶</div>}
+                                        onClick={() => dispatch(toggle_playback())}
+                                    />
+                                    <Button
+                                        text={<div style={{ letterSpacing: "-3px" }}>▶▶</div>}
+                                        onClick={() => { dispatch(change_to_next_time_step_and_refresh()) }} />
+                                </ButtonGroup>
+                            </div>
+                            <MiniCard 
+                                top={"Playback Speed:"}
+                                bottom={playback_speed}
+                            />
+                            <MiniCard 
+                                top={"Selected Time"}
+                                bottom={current_time}
+                            />
+                            <MiniCard
+                                top={"Displayed Time"}
+                                bottom={sensor_table.get("plctime", "current_value")}
+                            />
+                        </div>
                     } />
                 </Col>
-                <Col md={4} style={{width: "695px"}}>
+                <Col md={4} style={{ width: "695px" }}>
                     <PrettyBox contents={
                         <>
                             {charts}
@@ -146,9 +167,6 @@ export default function Todo() {
                 </Col>
             </Row>
         </CenteredBox>
-        <div>
-            playback_speed: {playback_speed}
-        </div>
         <div>
             bin cache pos: {bin}
         </div>
@@ -164,33 +182,6 @@ export default function Todo() {
         <div>
             current time: {current_time}
         </div>
-
-
-        <div>
-            {/* {JSON.stringify(playback_cache)} */}
-        </div>
-        <div>
-            <div style={{ display: "flex", alignItems: "center" }}>
-                <ButtonGroup>
-                    <Button
-                        text={is_playing
-                            ? <div style={{ letterSpacing: "-2px" }}>▮▮</div>
-                            : <div>▶</div>}
-                        onClick={() => dispatch(toggle_playback())}
-                    />
-                    <Button
-                        text={<div style={{ letterSpacing: "-3px" }}>▶▶</div>}
-                        onClick={() => { dispatch(change_to_next_time_step_and_refresh()) }} />
-                </ButtonGroup>
-                <div style={{ paddingLeft: "20px" }}>
-                    {/* {!ticking ? "paused" : playback_speed.get_current_speed()} */}
-                </div>
-                <div style={{ paddingLeft: "20px" }}>
-                    <div style={{ fontWeight: "bold" }}>Target Time:</div>
-                </div>
-            </div>
-        </div>
-
 
 
     </div>)
