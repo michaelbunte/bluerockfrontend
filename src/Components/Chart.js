@@ -302,15 +302,8 @@ const BrushChart = ({
             <path id="mainarea" strokeWidth={1} stroke="black" fill="lightgreen" />
             <rect fill="white" x="0" y="0" width={margin.left} height={height} />
             <rect fill="white" x={width - margin.right} y="0" width={margin.right} height={height} />
-            <rect id="lowerbrusharea" />
             <line id="centerline1" />
             <line id="centerline2" />
-            <g id="bottomaxis" />
-            <path id="fullscalearea" strokeWidth={1} stroke="black" fill="lightblue" />
-            <g className="brush" />
-            <g className="brush" />
-            <g id="leftaxis" />
-            <g id="fullscaleaxis" />
 
 
             {is_loading && <g>
@@ -426,11 +419,25 @@ const BrushChart = ({
                 {expand_symbol}
             </g>
 
-            <rect className="bottomscroll" />
 
             <text x={0} y={3} textAnchor="start" fontSize={14} pointerEvents="none">
                 {current_date_newline}
             </text>
+
+            <rect 
+                x="0" 
+                y={margin.top + top_height + middle_margin} 
+                width={width}
+                height={bottom_height + margin.bottom} 
+                fill="white" />
+            <path id="fullscalearea" strokeWidth={1} stroke="black" fill="lightblue" />
+            <rect id="lowerbrusharea" />
+            <g className="brush" />
+            <g className="brush" />
+            <g id="leftaxis" />
+            <g id="fullscaleaxis" />
+            <g id="bottomaxis" />
+            <rect className="bottomscroll" />
         </svg>
     );
 };

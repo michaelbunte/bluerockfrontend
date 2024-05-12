@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { useSelector, useDispatch } from 'react-redux';
 import { Button, ButtonGroup, SmartTable } from 'adminlte-2-react';
+import { LTTB } from 'downsample';
 import {
     set_selected_sensors_cache_to_loaded,
     select_selected_sensors_cache_state,
@@ -116,7 +117,7 @@ export default function Todo() {
             set_brush_1_time={set_handle_1_date}
             set_brush_2_time={set_handle_2_date}
             is_loading={are_caches_loading}
-            data={selected_sensors_cache[sensor_name]}
+            data={LTTB(selected_sensors_cache[sensor_name], 800)}
             on_chart_resize={on_chart_resize}
         />);
 
