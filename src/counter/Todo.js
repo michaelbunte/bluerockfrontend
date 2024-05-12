@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useSelector, useDispatch } from 'react-redux';
-import { Button, ButtonGroup } from 'adminlte-2-react';
+import { Button, ButtonGroup, SmartTable } from 'adminlte-2-react';
 import {
     set_selected_sensors_cache_to_loaded,
     select_selected_sensors_cache_state,
@@ -30,11 +30,24 @@ import BrushChart from "../Components/Chart";
 
 import BluerockSchematic from "../Components/BluerockSchematic";
 
-function MiniCard({ top="", bottom="" }) {
-    return <div style={{ padding: "4px", background: "white", margin: "2.5px", borderRadius: "3px", boxShadow: "6px 6px 5px 0px rgba(0,0,0,0.1)"}}>
+function MiniCard({ top = "", bottom = "" }) {
+    return <div style={{ padding: "4px", background: "white", margin: "2.5px", borderRadius: "3px", boxShadow: "6px 6px 5px 0px rgba(0,0,0,0.1)" }}>
         <div> {top} </div>
         <div> {bottom} </div>
     </div>
+}
+
+
+const tableColumns = [
+    { title: 'Sensor', data: 'sensor' },
+    { title: 'Display', data: 'selectbox_display' },
+    { title: 'Download', data: 'selectbox_download' },
+];
+
+function UserSensorTable() {
+    return <SmartTable
+        columns={tableColumns}
+    />
 }
 
 export default function Todo() {
@@ -123,12 +136,12 @@ export default function Todo() {
         <CenteredBox style={{ "background": "rgba(0,0,0,0)", "borderWidth": "0px" }}>
             <Row>
                 <Col md={7}>
-                    <PrettyBox contents={
+                    <PrettyBox>
                         <BluerockSchematic
                             md={sensor_table}
                         />
-                    } />
-                    <PrettyBox contents={
+                    </PrettyBox>
+                    <PrettyBox>
                         <div style={{ display: "flex", alignItems: "center" }}>
                             <div style={{ padding: "10px" }}>
                                 <ButtonGroup>
@@ -143,11 +156,11 @@ export default function Todo() {
                                         onClick={() => { dispatch(change_to_next_time_step_and_refresh()) }} />
                                 </ButtonGroup>
                             </div>
-                            <MiniCard 
+                            <MiniCard
                                 top={"Playback Speed:"}
                                 bottom={playback_speed}
                             />
-                            <MiniCard 
+                            <MiniCard
                                 top={"Selected Time"}
                                 bottom={current_time}
                             />
@@ -156,14 +169,17 @@ export default function Todo() {
                                 bottom={sensor_table.get("plctime", "current_value")}
                             />
                         </div>
-                    } />
+                    </PrettyBox>
+                    <PrettyBox>
+                        <UserSensorTable/>
+                    </PrettyBox>
                 </Col>
                 <Col md={4} style={{ width: "695px" }}>
-                    <PrettyBox contents={
+                    <PrettyBox>
                         <>
                             {charts}
                         </>
-                    } />
+                    </PrettyBox>
                 </Col>
             </Row>
         </CenteredBox>

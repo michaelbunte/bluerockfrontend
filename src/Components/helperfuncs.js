@@ -30,7 +30,7 @@ export const CenteredBox = (props) => {
 }
 
 export function PrettyBox({
-    contents,
+    children,
     topColor="#54b8ff",
     width="100%",
     height=undefined,
@@ -48,6 +48,6 @@ export function PrettyBox({
         width: width
     }}>
         {title && <div style={{fontSize: "2rem"}}>{title}</div>}
-        {contents}
+        {children}
     </div>
 }
