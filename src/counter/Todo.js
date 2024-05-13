@@ -17,7 +17,9 @@ import {
     select_playback_speed,
     change_to_next_time_step_and_refresh,
     PLAYBACK_HZ,
-    select_playback_speed_name
+    select_playback_speed_name,
+    select_user_selected_sensors,
+    update_selected_downloadable_sensors
 } from "./CachesSlice";
 
 import {
@@ -46,8 +48,63 @@ const tableColumns = [
 ];
 
 function UserSensorTable() {
+    const dispatch = useDispatch();
+    const modal_table_dict = useSelector(select_sensor_table);
+    const user_selected_sensors = useSelector(select_user_selected_sensors);
+
+    const user_selected_downloads = new Set(useSelector(state => state.caches.selected_downloadable_sensors));
+
+    const sensor_table_data = Object.keys(modal_table_dict)
+        .sort()
+        .filter(value => value != "get")
+        .map(key => ({
+            "sensor": modal_table_dict.get(key, "human_readible_name")
+                + (modal_table_dict.get(key, "abbreviated_name") && " (" + modal_table_dict.get(key, "abbreviated_name") + ")"),
+            "selectbox_display": <input
+                type="checkbox"
+                key={key}
+                checked={user_selected_sensors.has(key)}
+                onClick={async (e)=>{
+                    let us = new Set(user_selected_sensors);
+
+                    if (us.has(key))  {
+                        us.delete(key);
+                    } else {
+                        us.add(key);
+                    }
+
+                    await dispatch(update_sensor_list({
+                        set_selected_sensors_to_loading: true,
+                        selected_sensors: Array.from(us)
+                    }));
+                    
+                }}
+                readOnly
+            />,
+            "selectbox_download": <input
+                type="checkbox"
+                key={key}
+                checked={user_selected_downloads.has(key)}
+                onClick={() => {
+                    let us = new Set(user_selected_downloads);
+                    if (us.has(key)) {
+                        us.delete(key);
+                    } else {
+                        us.add(key);
+                    }
+
+                    dispatch(update_selected_downloadable_sensors(Array.from(us)));
+                }}
+            />
+        }))
+
     return <SmartTable
         columns={tableColumns}
+        data={sensor_table_data}
+        striped={true}
+        condensed={true}
+        pageSize={10}
+        selectedRows={[]}
     />
 }
 
@@ -62,6 +119,7 @@ export default function Todo() {
     const is_playing = useSelector(state => state.caches.playing)
     const playback_cache = useSelector(state => state.caches.playback_cache);
     const playback_speed = useSelector(select_playback_speed_name);
+    const user_selected_sensors = useSelector(select_user_selected_sensors);
 
     const [is_init_load, set_is_init_load] = useState(true);
     const [handle_1_date, set_handle_1_date] = useState(new Date());
@@ -75,7 +133,7 @@ export default function Todo() {
             await dispatch(initial_page_load());
             await dispatch(update_sensor_list({
                 set_selected_sensors_to_loading: false,
-                selected_sensors: ["permtemp", "recycleflow"]
+                selected_sensors: ["permtemp"]
             }));
         }
         load();
@@ -104,7 +162,7 @@ export default function Todo() {
         await dispatch(update_handle_2_date(new Date(high).toISOString()));
         await dispatch(update_sensor_list({
             set_selected_sensors_to_loading: true,
-            selected_sensors: ["permtemp", "recycleflow"]
+            selected_sensors: Array.from(user_selected_sensors)
         }));
     };
 
@@ -172,7 +230,7 @@ export default function Todo() {
                         </div>
                     </PrettyBox>
                     <PrettyBox>
-                        <UserSensorTable/>
+                        <UserSensorTable />
                     </PrettyBox>
                 </Col>
                 <Col md={4} style={{ width: "695px" }}>

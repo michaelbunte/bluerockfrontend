@@ -89,7 +89,6 @@ export const update_sensor_list = createAsyncThunk(
             });
         }
 
-
         let state = getState();
 
 
@@ -335,7 +334,7 @@ export const handle_time_increment = createAsyncThunk(
         ) {
             await dispatch(update_sensor_list({
                 set_selected_sensors_to_loading: true,
-                selected_sensors: ["permtemp", "recycleflow"]
+                selected_sensors: Object.keys(state.caches.selected_sensors_cache)
             }));
             return;
         }
@@ -362,7 +361,7 @@ export const handle_time_increment = createAsyncThunk(
         ) {
             await dispatch(update_sensor_list({
                 set_selected_sensors_to_loading: false,
-                selected_sensors: ["permtemp", "recycleflow"]
+                selected_sensors: Object.keys(state.caches.selected_sensors_cache)
             }));
         }
 
@@ -410,7 +409,7 @@ export const cachesSlice = createSlice({
         playing: true,
         test: "not tested",
         selected_sensors_cache_state: "loading",
-        selected_sensors_cache: [],
+        selected_sensors_cache: {},
         playback_cache: [],
         playback_cache_state: "loaded",
         start_date: new Date("1970").toISOString(),
@@ -434,11 +433,15 @@ export const cachesSlice = createSlice({
         most_recent_completed_playback_cache_query: {
             start: new Date("1970").toISOString(),
             end: new Date("1970").toISOString()
-        }
+        },
+        selected_downloadable_sensors: ["permtemp"]
     },
     reducers: {
         change_to_next_time_step: (state) => {
             state.time_step_index = (state.time_step_index + 1) % TIME_STEP_SIZES.length;
+        },
+        update_selected_downloadable_sensors: (state, action) => {
+            state.selected_downloadable_sensors = action.payload;
         },
         toggle_playback: (state) => {
             state.playing = !state.playing;
@@ -531,7 +534,8 @@ export const {
     update_handle_1_date,
     update_handle_2_date,
     toggle_playback,
-    change_to_next_time_step
+    change_to_next_time_step,
+    update_selected_downloadable_sensors
 } = cachesSlice.actions;
 
 export const select_selected_sensors_cache_state =
@@ -584,5 +588,9 @@ export const select_sensor_table = createSelector(
     }
 );
 
+
+export const select_user_selected_sensors = createSelector([
+    state => state.caches.selected_sensors_cache
+], (selected_sensor_cache)=>new Set(Object.keys(selected_sensor_cache)));
 
 export default cachesSlice.reducer;
