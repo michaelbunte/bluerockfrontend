@@ -38,7 +38,8 @@ const BrushChart = ({
     is_loading = false,
     loading_text = "Fetching data from server",
     title = "",
-    data = []
+    data = [],
+    on_drag = () => {}
 }) => {
     const svgRef = useRef();
 
@@ -157,7 +158,8 @@ const BrushChart = ({
 
         let brush_drag = d3.drag()
             .on('end', brush_drag_end)
-            .on('drag', handle_brush_drag);
+            .on('drag', handle_brush_drag)
+            .on('start', on_drag);
 
         function handle_brush_drag(e) {
             e.subject.x = e.x;
@@ -188,6 +190,7 @@ const BrushChart = ({
 
         let scrollbar_drag = d3.drag()
             .on('drag', handle_scroll_drag)
+            .on('start', on_drag)
             .on('end', scrollbar_drag_end);
 
         function scrollbar_drag_end(e) {

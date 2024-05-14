@@ -3,8 +3,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Button, ButtonGroup, SmartTable } from 'adminlte-2-react';
 import { LTTB } from 'downsample';
 import {
-    set_selected_sensors_cache_to_loaded,
-    select_selected_sensors_cache_state,
     initial_page_load,
     update_handle_1_date,
     update_handle_2_date,
@@ -12,14 +10,13 @@ import {
     update_sensor_list,
     select_sensor_table,
     select_loading,
-    binarySearchNearestTime,
     toggle_playback,
-    select_playback_speed,
     change_to_next_time_step_and_refresh,
     PLAYBACK_HZ,
     select_playback_speed_name,
     select_user_selected_sensors,
     update_selected_downloadable_sensors,
+    pause_playback,
     select_host_string
 } from "./CachesSlice";
 import 'react-datetime-picker/dist/DateTimePicker.css';
@@ -183,6 +180,7 @@ export default function Todo() {
             is_loading={are_caches_loading}
             data={LTTB(selected_sensors_cache[sensor_name], 800)}
             on_chart_resize={on_chart_resize}
+            on_drag={()=>dispatch(pause_playback())}
         />);
 
     let current_time = new Date((new Date(handle_start).getTime() + new Date(handle_end).getTime()) / 2).toISOString();
