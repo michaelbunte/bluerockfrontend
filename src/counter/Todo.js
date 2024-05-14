@@ -113,11 +113,8 @@ export default function Todo() {
     const handle_start = useSelector(state => state.caches.handle_1_date);
     const handle_end = useSelector(state => state.caches.handle_2_date);
     const sensor_table = useSelector(select_sensor_table);
-    const overall_cache_state = useSelector(state => state.caches);
-    const playback_cache_state = useSelector(state => state.caches.playback_cache_state);
     const are_caches_loading = useSelector(select_loading);
     const is_playing = useSelector(state => state.caches.playing)
-    const playback_cache = useSelector(state => state.caches.playback_cache);
     const playback_speed = useSelector(select_playback_speed_name);
     const user_selected_sensors = useSelector(select_user_selected_sensors);
 
@@ -179,16 +176,7 @@ export default function Todo() {
             on_chart_resize={on_chart_resize}
         />);
 
-    let playback_cache_start = "";
-    let playback_cache_end = "";
-    try {
-        playback_cache_start = JSON.stringify(overall_cache_state.playback_cache[0]["timezone"])
-        playback_cache_end = JSON.stringify(overall_cache_state.playback_cache[overall_cache_state.playback_cache.length - 1]["timezone"])
-    } catch (e) { }
-
-
     let current_time = new Date((new Date(handle_start).getTime() + new Date(handle_end).getTime()) / 2).toISOString();
-    let bin = binarySearchNearestTime(playback_cache, current_time);
 
     return (<div>
 
@@ -242,22 +230,5 @@ export default function Todo() {
                 </Col>
             </Row>
         </CenteredBox>
-        <div>
-            bin cache pos: {bin}
-        </div>
-        <div>
-            length: {playback_cache.length}
-        </div>
-        <div>
-            {playback_cache_state}
-        </div>
-        <div>
-            playback cache range: {playback_cache_start} - {playback_cache_end}
-        </div>
-        <div>
-            current time: {current_time}
-        </div>
-
-
     </div>)
 }
