@@ -44,7 +44,6 @@ export const binarySearchNearestTime = (arr, targetTime) => {
 
 
 let host_string = "ec2-54-215-192-153.us-west-1.compute.amazonaws.com:5001";
-// fetch(`http://${host_string}/bluerock/adaptive_all_history/${selected_sensor}/${cache_size["start"].toISOString()}/${cache_size["end"].toISOString()}`);
 
 export const initial_page_load = createAsyncThunk(
     'caches/initial_page_load',
@@ -151,7 +150,6 @@ export const update_playback_cache_async = createAsyncThunk(
     "caches/update_playback_cache",
     async (args, { dispatch, getState }) => {
         let state = getState();
-        console.log("calling playback cache")
 
         let width = new Date(state.caches.most_recent_playback_cache_query.end).getTime() - new Date(state.caches.most_recent_playback_cache_query.start).getTime();
         let current_time = new Date((new Date(state.caches.handle_1_date).getTime() + new Date(state.caches.handle_2_date).getTime()) / 2);

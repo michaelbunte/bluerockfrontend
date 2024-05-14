@@ -85,12 +85,9 @@ export async function Download_selected_sensors(
         window.confirm("Invalid date selection");
         return;
     }
-    console.log("fetching")
-    console.log(`http://${host_string}/bluerock/specific_sensors_range/${selected_sensors}/${start_date}/${end_date}`)
 
     let response = await fetch(`http://${host_string}/bluerock/specific_sensors_range/${selected_sensors}/${start_date}/${end_date}`);
     let response_json = await response.json();
-    console.log("received")
 
     const csv = convertToCSV(response_json);
     const blob = new Blob([csv], { type: 'text/csv' });
