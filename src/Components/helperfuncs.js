@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import {Box} from 'adminlte-2-react';
+import { useSelector } from 'react-redux';
+
 
 function getWindowDimensions() {
     const { innerWidth: width, innerHeight: height } = window;
@@ -50,4 +52,50 @@ export function PrettyBox({
         {title && <div style={{fontSize: "2rem"}}>{title}</div>}
         {children}
     </div>
+}
+
+
+const convertToCSV = (data) => {
+    // Extract column headers
+    const headers = Object.keys(data[0]);
+
+    // Create CSV content
+    const csvContent = [
+        headers.join(','), // CSV header
+        ...data.map(item => headers.map(header => item[header]).join(',')) // CSV rows
+    ].join('\n');
+
+    return csvContent;
+};
+
+
+export async function Download_selected_sensors(
+    start_date,
+    end_date,
+    selected_sensors,
+    host_string
+) {
+
+
+    if (selected_sensors.length === 0) {
+        window.confirm("Please select sensors to download");
+        return;
+    }
+    if (end_date <= start_date) {
+        window.confirm("Invalid date selection");
+        return;
+    }
+    console.log("fetching")
+    console.log(`http://${host_string}/bluerock/specific_sensors_range/${selected_sensors}/${start_date}/${end_date}`)
+
+    let response = await fetch(`http://${host_string}/bluerock/specific_sensors_range/${selected_sensors}/${start_date}/${end_date}`);
+    let response_json = await response.json();
+    console.log("received")
+
+    const csv = convertToCSV(response_json);
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'data.csv';
+    link.click();
 }

@@ -19,13 +19,18 @@ import {
     PLAYBACK_HZ,
     select_playback_speed_name,
     select_user_selected_sensors,
-    update_selected_downloadable_sensors
+    update_selected_downloadable_sensors,
+    select_host_string
 } from "./CachesSlice";
-
+import 'react-datetime-picker/dist/DateTimePicker.css';
+import 'react-calendar/dist/Calendar.css';
+import 'react-clock/dist/Clock.css';
+import DateTimePicker from 'react-datetime-picker';
 import {
     useWindowDimensions,
     CenteredBox,
-    PrettyBox
+    PrettyBox,
+    Download_selected_sensors
 } from "../Components/helperfuncs";
 import { Box, Col, Row, Content } from 'adminlte-2-react';
 
@@ -51,8 +56,8 @@ function UserSensorTable() {
     const dispatch = useDispatch();
     const modal_table_dict = useSelector(select_sensor_table);
     const user_selected_sensors = useSelector(select_user_selected_sensors);
-
     const user_selected_downloads = new Set(useSelector(state => state.caches.selected_downloadable_sensors));
+    
 
     const sensor_table_data = Object.keys(modal_table_dict)
         .sort()
@@ -64,10 +69,10 @@ function UserSensorTable() {
                 type="checkbox"
                 key={key}
                 checked={user_selected_sensors.has(key)}
-                onClick={async (e)=>{
+                onClick={async (e) => {
                     let us = new Set(user_selected_sensors);
 
-                    if (us.has(key))  {
+                    if (us.has(key)) {
                         us.delete(key);
                     } else {
                         us.add(key);
@@ -77,7 +82,7 @@ function UserSensorTable() {
                         set_selected_sensors_to_loading: true,
                         selected_sensors: Array.from(us)
                     }));
-                    
+
                 }}
                 readOnly
             />,
@@ -117,10 +122,15 @@ export default function Todo() {
     const is_playing = useSelector(state => state.caches.playing)
     const playback_speed = useSelector(select_playback_speed_name);
     const user_selected_sensors = useSelector(select_user_selected_sensors);
+    const host_string = useSelector(state => state.caches.host_string);
 
     const [is_init_load, set_is_init_load] = useState(true);
     const [handle_1_date, set_handle_1_date] = useState(new Date());
     const [handle_2_date, set_handle_2_date] = useState(new Date());
+
+    const [start_download_date, set_start_download_date] = useState(new Date('2021-01-03'));
+    const [end_download_date, set_end_download_date] = useState(new Date('2021-01-05'));
+    const [download_loading, set_download_loading] = useState(false);
 
     useEffect(() => {
         // ensures this can only run once
@@ -149,7 +159,6 @@ export default function Todo() {
         return () => clearInterval(interval);
     }, []);
 
-    const selected_sensors_cache_state = useSelector(select_selected_sensors_cache_state);
     const selected_sensors_cache = useSelector(state => state.caches.selected_sensors_cache);
 
     const sensor_names = Object.keys(selected_sensors_cache);
@@ -165,7 +174,7 @@ export default function Todo() {
 
     const charts = sensor_names.map(sensor_name =>
         <BrushChart
-            title={sensor_name}
+            title={sensor_table.get(sensor_name, "human_readible_name")}
             key={sensor_name}
             brush_1_time={new Date(handle_1_date)}
             brush_2_time={new Date(handle_2_date)}
@@ -220,6 +229,44 @@ export default function Todo() {
                     <PrettyBox>
                         <UserSensorTable />
                     </PrettyBox>
+                    <PrettyBox>
+                        <ButtonGroup>
+                            <Button
+                                text={download_loading ? "loading" : "Download Data"}
+                                color="blue"
+                                onClick={ async () => {
+                                    if(download_loading) { return; }
+
+                                    set_download_loading(true);
+                                    await Download_selected_sensors(start_download_date, end_download_date, Array.from(user_selected_sensors), host_string);
+                                    set_download_loading(false);
+                                }}
+                            />
+                        </ButtonGroup>
+                        <div style={{
+                            display: "flex",
+                            alignItems: "center",
+                            flexWrap: "wrap",
+                            gap: "20px"
+                        }}
+                        >
+                            <div style={{zIndex: 100}}>
+                                <div>Start Date</div>
+                                <DateTimePicker 
+                                    onChange={set_start_download_date}
+                                    value={start_download_date}
+                                />
+                            </div>
+                            <div style={{zIndex: 100}}>
+                                <div>End Date</div>
+                                <DateTimePicker 
+                                    onChange={set_end_download_date}
+                                    value={end_download_date}
+                                />
+                            </div>
+                        </div>
+                    </PrettyBox>
+
                 </Col>
                 <Col md={4} style={{ width: "695px" }}>
                     <PrettyBox>

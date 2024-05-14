@@ -434,7 +434,8 @@ export const cachesSlice = createSlice({
             start: new Date("1970").toISOString(),
             end: new Date("1970").toISOString()
         },
-        selected_downloadable_sensors: ["permtemp"]
+        selected_downloadable_sensors: ["permtemp"],
+        host_string: host_string
     },
     reducers: {
         change_to_next_time_step: (state) => {
@@ -550,6 +551,8 @@ export const select_playback_speed = state => get_time_step_size(state.caches.ti
 export const select_playback_speed_name = state => get_time_step_name(state.caches.time_step_index);
 
 const select_sensor_table_state = state => state.caches.sensor_table;
+
+export const select_host_string = state => state.caches.host_string;
 
 // createSelector allows for memoizing
 export const select_sensor_table = createSelector(
