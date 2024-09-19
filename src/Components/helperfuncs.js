@@ -86,7 +86,9 @@ export async function Download_selected_sensors(
         return;
     }
 
-    let response = await fetch(`http://${host_string}/bluerock/specific_sensors_range/${selected_sensors}/${start_date}/${end_date}`);
+    const query_string = `http://${host_string}/specific_sensors_range/fetch/${selected_sensors}/${start_date}/${end_date}`;
+    console.log(query_string)
+    let response = await fetch(query_string);
     let response_json = await response.json();
 
     const csv = convertToCSV(response_json);

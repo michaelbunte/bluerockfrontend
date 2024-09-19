@@ -23,7 +23,7 @@ export const binarySearchNearestTime = (arr, targetTime) => {
 
     while (left <= right) {
         const mid = Math.floor((left + right) / 2);
-        const midTime = new Date(arr[mid]["timezone"]).getTime();
+        const midTime = new Date(arr[mid]["plctime"]).getTime();
         const diff = Math.abs(midTime - target_time_millis);
 
         if (diff < minDiff) {
@@ -43,15 +43,16 @@ export const binarySearchNearestTime = (arr, targetTime) => {
 }
 
 
-let host_string = "ec2-54-215-192-153.us-west-1.compute.amazonaws.com:5001";
+// let host_string = "ec2-54-215-192-153.us-west-1.compute.amazonaws.com:5001";
+let host_string = "localhost:5001"
 
 export const initial_page_load = createAsyncThunk(
     'caches/initial_page_load',
     async (amount) => {
         let [sensor_table, plcrange] = await Promise.all([
-            fetch(`http://${host_string}/bluerock/sensor_info_table`)
+            fetch(`http://${host_string}/sensor_info_table/bluerock`)
                 .then(response => response.json()),
-            fetch(`http://${host_string}/bluerock/adaptive_all_history/plctime/${new Date("1970").toISOString()}/${new Date("2100").toISOString()}`)
+            fetch(`http://${host_string}/adaptive_all_history/bluerock/plctime/${new Date("1970").toISOString()}/${new Date("2100").toISOString()}`)
                 .then(response => response.json()),
         ]);
 
@@ -109,7 +110,7 @@ export const update_sensor_list = createAsyncThunk(
 
         let retrieved_sensor_values = await Promise.all(selected_sensors.map(
             sensor_name =>
-                fetch(`http://${host_string}/bluerock/adaptive_all_history/${sensor_name}/${new Date(query_range.start)}/${new Date(query_range.end)}`)
+                fetch(`http://${host_string}/adaptive_all_history/bluerock/${sensor_name}/${new Date(query_range.start)}/${new Date(query_range.end)}`)
                     .then(response => response.json())
         ));
 
@@ -172,7 +173,7 @@ export const update_playback_cache_async = createAsyncThunk(
                 payload: query_range
             })
 
-            let new_cache = await fetch(`http://${host_string}/bluerock/adaptive_all_sensors/${query_range.start}/${query_range.end}`)
+            let new_cache = await fetch(`http://${host_string}/adaptive_all_sensors/bluerock/${query_range.start}/${query_range.end}`)
                 .then(response => response.json());
 
             // TODO: need to check if new_cache is still valid
@@ -232,7 +233,7 @@ export const update_playback_cache_async = createAsyncThunk(
                 payload: query_range
             })
 
-            let new_cache = await fetch(`http://${host_string}/bluerock/adaptive_all_sensors/${query_range.start}/${query_range.end}`)
+            let new_cache = await fetch(`http://${host_string}/adaptive_all_sensors/bluerock/${query_range.start}/${query_range.end}`)
                 .then(response => response.json());
 
             let state = getState();
