@@ -10,6 +10,12 @@ const get_min_date = (date_string_1, date_string_2) => {
     return new Date(Math.min(new Date(date_string_1), new Date(date_string_2))).toISOString();
 }
 
+export const SYSTEMS = [
+    { value: 'bluerock', label: 'Bluerock' },
+    { value: 'pryor_farms', label: 'Pryor Farms' },
+    { value: 'santa_teresa', label: 'Santa Teresa' },
+];
+
 const get_max_date = (date_string_1, date_string_2) => {
     return new Date(Math.max(new Date(date_string_1), new Date(date_string_2))).toISOString();
 }
@@ -48,11 +54,12 @@ let host_string = "localhost:5001"
 
 export const initial_page_load = createAsyncThunk(
     'caches/initial_page_load',
-    async (amount) => {
+    async (amount, {getState}) => {
+        const state = getState();
         let [sensor_table, plcrange] = await Promise.all([
-            fetch(`http://${host_string}/sensor_info_table/bluerock`)
+            fetch(`http://${host_string}/sensor_info_table/${state.caches.selected_system}`)
                 .then(response => response.json()),
-            fetch(`http://${host_string}/adaptive_all_history/bluerock/plctime/${new Date("1970").toISOString()}/${new Date("2100").toISOString()}`)
+            fetch(`http://${host_string}/adaptive_all_history/${state.caches.selected_system}/plctime/${new Date("1970").toISOString()}/${new Date("2100").toISOString()}`)
                 .then(response => response.json()),
         ]);
 
@@ -68,6 +75,7 @@ export const initial_page_load = createAsyncThunk(
         };
     }
 )
+
 
 /*
 args: {
@@ -110,7 +118,7 @@ export const update_sensor_list = createAsyncThunk(
 
         let retrieved_sensor_values = await Promise.all(selected_sensors.map(
             sensor_name =>
-                fetch(`http://${host_string}/adaptive_all_history/bluerock/${sensor_name}/${new Date(query_range.start)}/${new Date(query_range.end)}`)
+                fetch(`http://${host_string}/adaptive_all_history/${state.caches.selected_system}/${sensor_name}/${new Date(query_range.start)}/${new Date(query_range.end)}`)
                     .then(response => response.json())
         ));
 
@@ -173,7 +181,7 @@ export const update_playback_cache_async = createAsyncThunk(
                 payload: query_range
             })
 
-            let new_cache = await fetch(`http://${host_string}/adaptive_all_sensors/bluerock/${query_range.start}/${query_range.end}`)
+            let new_cache = await fetch(`http://${host_string}/adaptive_all_sensors/${state.caches.selected_system}/${query_range.start}/${query_range.end}`)
                 .then(response => response.json());
 
             // TODO: need to check if new_cache is still valid
@@ -233,10 +241,11 @@ export const update_playback_cache_async = createAsyncThunk(
                 payload: query_range
             })
 
-            let new_cache = await fetch(`http://${host_string}/adaptive_all_sensors/bluerock/${query_range.start}/${query_range.end}`)
+            let state = getState();
+
+            let new_cache = await fetch(`http://${host_string}/adaptive_all_sensors/${state.caches.selected_system}/${query_range.start}/${query_range.end}`)
                 .then(response => response.json());
 
-            let state = getState();
             if (
                 query_range.start != state.caches.most_recent_playback_cache_query.start
                 ||
@@ -405,6 +414,7 @@ export const change_to_next_time_step_and_refresh = createAsyncThunk(
 export const cachesSlice = createSlice({
     name: "caches",
     initialState: {
+        selected_system: "bluerock",
         playing: true,
         test: "not tested",
         selected_sensors_cache_state: "loading",
@@ -461,6 +471,7 @@ export const cachesSlice = createSlice({
         set_playback_cache_state_to_loaded: (state) => {
             state.playback_cache_state = "loaded";
         },
+
         update_most_recent_query: (state, action) => {
             let { start, end } = action.payload;
 
@@ -506,6 +517,9 @@ export const cachesSlice = createSlice({
         },
         update_playback_cache: (state, action) => {
             state.playback_cache = action.payload;
+        },
+        update_selected_system: (state, action) => {
+            state.selected_system = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -537,6 +551,7 @@ export const {
     update_handle_1_date,
     update_handle_2_date,
     toggle_playback,
+    update_selected_system,
     pause_playback,
     change_to_next_time_step,
     update_selected_downloadable_sensors
@@ -556,6 +571,8 @@ export const select_playback_speed_name = state => get_time_step_name(state.cach
 const select_sensor_table_state = state => state.caches.sensor_table;
 
 export const select_host_string = state => state.caches.host_string;
+
+export const select_current_system = state => state.caches.selected_system;
 
 // createSelector allows for memoizing
 export const select_sensor_table = createSelector(

@@ -17,6 +17,9 @@ import {
     select_user_selected_sensors,
     update_selected_downloadable_sensors,
     pause_playback,
+    SYSTEMS,
+    select_current_system,
+    update_selected_system,
     select_host_string
 } from "./CachesSlice";
 import 'react-datetime-picker/dist/DateTimePicker.css';
@@ -64,14 +67,8 @@ const tableColumns = [
         backgroundColor: 'lightcoral',
         padding: '20px',
         textAlign: 'center',
-        marginLeft: 'auto',               // Push Div B to the right
+        marginLeft: 'auto',
     }
-];
-
-const SYSTEMS = [
-    { value: 'bluerock', label: 'Bluerock' },
-    { value: 'pryor_farms', label: 'Pryor Farms' },
-    { value: 'santa_teresa', label: 'Santa Teresa' },
 ];
 
 function UserSensorTable() {
@@ -145,6 +142,7 @@ export default function Todo() {
     const playback_speed = useSelector(select_playback_speed_name);
     const user_selected_sensors = useSelector(select_user_selected_sensors);
     const host_string = useSelector(state => state.caches.host_string);
+    const selected_system = useSelector(select_current_system);
 
     const [is_init_load, set_is_init_load] = useState(true);
     const [handle_1_date, set_handle_1_date] = useState(new Date());
@@ -154,7 +152,6 @@ export default function Todo() {
     const [end_download_date, set_end_download_date] = useState(new Date('2021-01-05'));
     const [download_loading, set_download_loading] = useState(false);
 
-    const [selected_system, set_selected_system] = useState("");
 
     useEffect(() => {
         // ensures this can only run once
@@ -244,7 +241,7 @@ export default function Todo() {
                 marginLeft: 'auto'
             }}>
                 <Dropdown choices={SYSTEMS} selected_system={selected_system} handle_change={(event) => {
-                    set_selected_system(event.target.value);
+                    dispatch(update_selected_system(event.target.value));
                 }} />
 
             </div>
