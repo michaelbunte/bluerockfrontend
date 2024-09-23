@@ -27,9 +27,11 @@ import {
     useWindowDimensions,
     CenteredBox,
     PrettyBox,
-    Download_selected_sensors
+    Download_selected_sensors,
 } from "../Components/helperfuncs";
-import { Box, Col, Row, Content } from 'adminlte-2-react';
+import Dropdown from "../Components/Dropdown";
+import { Box, Col, Row, Content, Select } from 'adminlte-2-react';
+
 
 import BrushChart from "../Components/Chart";
 
@@ -42,11 +44,34 @@ function MiniCard({ top = "", bottom = "" }) {
     </div>
 }
 
+function capitalize_words(sentence) {
+    return sentence.split('_').map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
+}
+
+function pretty_string_selected_system(system_name) {
+    let output = capitalize_words(system_name)
+    return output;
+}
+
 
 const tableColumns = [
     { title: 'Sensor', data: 'sensor' },
     { title: 'Display', data: 'selectbox_display' },
     { title: 'Download', data: 'selectbox_download' },
+    {
+        backgroundColor: 'lightcoral',
+        padding: '20px',
+        textAlign: 'center',
+        marginLeft: 'auto',               // Push Div B to the right
+    }
+];
+
+const SYSTEMS = [
+    { value: 'bluerock', label: 'Bluerock' },
+    { value: 'pryor_farms', label: 'Pryor Farms' },
+    { value: 'santa_teresa', label: 'Santa Teresa' },
 ];
 
 function UserSensorTable() {
@@ -54,7 +79,7 @@ function UserSensorTable() {
     const modal_table_dict = useSelector(select_sensor_table);
     const user_selected_sensors = useSelector(select_user_selected_sensors);
     const user_selected_downloads = new Set(useSelector(state => state.caches.selected_downloadable_sensors));
-    
+
 
     const sensor_table_data = Object.keys(modal_table_dict)
         .sort()
@@ -129,6 +154,8 @@ export default function Todo() {
     const [end_download_date, set_end_download_date] = useState(new Date('2021-01-05'));
     const [download_loading, set_download_loading] = useState(false);
 
+    const [selected_system, set_selected_system] = useState("");
+
     useEffect(() => {
         // ensures this can only run once
 
@@ -180,13 +207,48 @@ export default function Todo() {
             is_loading={are_caches_loading}
             data={LTTB(selected_sensors_cache[sensor_name], 800)}
             on_chart_resize={on_chart_resize}
-            on_drag={()=>dispatch(pause_playback())}
+            on_drag={() => dispatch(pause_playback())}
         />);
 
     let current_time = new Date((new Date(handle_start).getTime() + new Date(handle_end).getTime()) / 2).toISOString();
 
     return (<div>
+        <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            width: '100%',
+            position: 'relative',
+        }}>
+            <div style={{
+                padding: '20px',
+                textAlign: 'center',
+                position: 'absolute',
+                left: '50%',
+                transform: 'translateX(-50%)',
+            }}>
+                <div style={{
+                    fontWeight: "bold",
+                    fontSize: "3rem",
+                    textAlign: "center",
+                    paddingTop: "12px"
+                }}>
+                    {pretty_string_selected_system(selected_system)} Dashboard
+                </div>
 
+            </div>
+            <div style={{
+                padding: '20px',
+                textAlign: 'center',
+                marginLeft: 'auto'
+            }}>
+                <Dropdown choices={SYSTEMS} selected_system={selected_system} handle_change={(event) => {
+                    set_selected_system(event.target.value);
+                }} />
+
+            </div>
+        </div>
         <CenteredBox style={{ "background": "rgba(0,0,0,0)", "borderWidth": "0px" }}>
             <Row>
                 <Col md={7}>
@@ -232,8 +294,8 @@ export default function Todo() {
                             <Button
                                 text={download_loading ? "loading" : "Download Data"}
                                 color="blue"
-                                onClick={ async () => {
-                                    if(download_loading) { return; }
+                                onClick={async () => {
+                                    if (download_loading) { return; }
 
                                     set_download_loading(true);
                                     await Download_selected_sensors(start_download_date, end_download_date, Array.from(user_selected_sensors), host_string);
@@ -248,16 +310,16 @@ export default function Todo() {
                             gap: "20px"
                         }}
                         >
-                            <div style={{zIndex: 100}}>
+                            <div style={{ zIndex: 100 }}>
                                 <div>Start Date</div>
-                                <DateTimePicker 
+                                <DateTimePicker
                                     onChange={set_start_download_date}
                                     value={start_download_date}
                                 />
                             </div>
-                            <div style={{zIndex: 100}}>
+                            <div style={{ zIndex: 100 }}>
                                 <div>End Date</div>
-                                <DateTimePicker 
+                                <DateTimePicker
                                     onChange={set_end_download_date}
                                     value={end_download_date}
                                 />
