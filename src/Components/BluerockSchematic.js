@@ -581,7 +581,6 @@ function BluerockSchematic({ md }) {
                     <FeedTankSystem md={md} />
                     <WaterDeliverSystem md={md} />
                     <ROSystem md={md} />
-                    {/* <Key /> */}
                 </svg>
             </g>
         </svg>
