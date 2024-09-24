@@ -414,7 +414,7 @@ export const change_to_next_time_step_and_refresh = createAsyncThunk(
 export const cachesSlice = createSlice({
     name: "caches",
     initialState: {
-        selected_system: "bluerock",
+        selected_system: "santa_teresa",
         playing: true,
         test: "not tested",
         selected_sensors_cache_state: "loading",

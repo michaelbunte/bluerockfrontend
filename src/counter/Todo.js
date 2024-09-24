@@ -39,6 +39,7 @@ import { Box, Col, Row, Content, Select } from 'adminlte-2-react';
 import BrushChart from "../Components/Chart";
 
 import BluerockSchematic from "../Components/BluerockSchematic";
+import SantaTeresaPryorFarmsSchematic from "../Components/SantaTeresaPryorFarmsSchematic";
 
 function MiniCard({ top = "", bottom = "" }) {
     return <div style={{ padding: "4px", background: "white", margin: "2.5px", borderRadius: "3px", boxShadow: "6px 6px 5px 0px rgba(0,0,0,0.1)" }}>
@@ -152,7 +153,6 @@ export default function Todo() {
     const [end_download_date, set_end_download_date] = useState(new Date('2021-01-05'));
     const [download_loading, set_download_loading] = useState(false);
 
-
     useEffect(() => {
         // ensures this can only run once
 
@@ -250,7 +250,10 @@ export default function Todo() {
             <Row>
                 <Col md={7}>
                     <PrettyBox>
-                        <BluerockSchematic
+                        {/* <BluerockSchematic
+                            md={sensor_table}
+                        /> */}
+                        <SantaTeresaPryorFarmsSchematic
                             md={sensor_table}
                         />
                     </PrettyBox>
