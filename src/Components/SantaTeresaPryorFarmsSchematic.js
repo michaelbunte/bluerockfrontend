@@ -21,7 +21,7 @@ const get_value_unit_string = (sensor_name, modal_table_dict) => {
         + `${modal_table_dict.get(sensor_name, "units")}`;
 }
 
-function FeedTankSystem({md, pipe_info}) {
+function FeedTankSystem({ md, pipe_info }) {
     const wp = md.get("wellpumprun", "current_value");
     const p1 = md.get("feedpumprun", "current_value");
     return (
@@ -30,12 +30,12 @@ function FeedTankSystem({md, pipe_info}) {
             <text x="247" y="40" {...titleProps}>
                 FEED TANK SYSTEM
             </text>
-            <AnimatedPipe 
-                paths={[[[260, 160], [260, 100], [284, 100]]]} 
+            <AnimatedPipe
+                paths={[[[260, 160], [260, 100], [284, 100]]]}
                 pipeOn={pipe_info.wp_to_feed_tank}
             />
-            <AnimatedPipe 
-                paths={[[[342, 100], [529, 100]]]} 
+            <AnimatedPipe
+                paths={[[[342, 100], [529, 100]]]}
                 pipeOn={pipe_info.feed_tank_to_system}
             />
             <SensorIndicator
@@ -43,15 +43,16 @@ function FeedTankSystem({md, pipe_info}) {
                 line="up"
                 innerText="LT1"
                 textDir="down"
-                outerText={get_value_unit_string('feedtanklevel', md)}/>
-            <PumpSymbol x="260" y="160" innerText="WP" flow={wp}/>
-            <LiquidFillGaugeWrapper x="320" y="90" />
+                // outerText={get_value_unit_string('feedtanklevel', md)}
+            />
+            <PumpSymbol x="260" y="160" innerText="WP" flow={wp} />
+            <LiquidFillGaugeWrapper x="320" y="90" fillLevel={md.get("feedtanklevel", "current_value")} />
             <SensorIndicator WaterScope x="394.5" y="100" innerText="100" />
         </g>
     );
 }
 
-function FlushTankSystem({md, pipe_info}) {
+function FlushTankSystem({ md, pipe_info }) {
     const e13 = md.get("runflush", "current_value")
     return (
         <g>
@@ -59,30 +60,35 @@ function FlushTankSystem({md, pipe_info}) {
             <text x="330" y="260" {...titleProps} textAnchor="middle">
                 FLUSH TANK SYSTEM
             </text>
-            <AnimatedPipe 
-                stroke={LIGHTBLUECOLOR} 
-                paths={[[[313, 330.5], [468.5, 330.5], [468.5, 200.5], [535.5, 200.5]]]} 
+            <AnimatedPipe
+                stroke={LIGHTBLUECOLOR}
+                paths={[[[313, 330.5], [468.5, 330.5], [468.5, 200.5], [535.5, 200.5]]]}
                 pipeOn={pipe_info.flush_tank_to_system}
             />
-            <AnimatedPipe 
-                stroke={LIGHTBLUECOLOR} 
-                paths={[[[568, 699.5], [568, 759.5], [230.5, 759.5], [230.5, 330.5], [253.5, 330.5]]]} 
+            <AnimatedPipe
+                stroke={LIGHTBLUECOLOR}
+                paths={[[[568, 699.5], [568, 759.5], [230.5, 759.5], [230.5, 330.5], [253.5, 330.5]]]}
                 pipeOn={pipe_info.av7_to_flush_tank}
             />
 
-            <LiquidFillGaugeWrapper x="290" y="320" />
+            <LiquidFillGaugeWrapper 
+                x="290" 
+                y="320" 
+                fillLevel={md.get('flushtanklevel', 'current_value')}
+            />
             <SensorIndicator
                 x="290" y="400"
                 line="up"
                 innerText="LT3"
                 textDir="right"
-                outerText={get_value_unit_string('flushtanklevel', md)} />
-            <PumpSymbol x="382.5" y="330" innerText="E13" flow={e13}/>
+                // outerText={get_value_unit_string('flushtanklevel', md)} 
+            />
+            <PumpSymbol x="382.5" y="330" innerText="E13" flow={e13} />
         </g>
     );
 }
 
-function ResidualSeptic({md, pipe_info}) {
+function ResidualSeptic({ md, pipe_info }) {
 
     return (
         <g>
@@ -91,21 +97,21 @@ function ResidualSeptic({md, pipe_info}) {
                 Residual/Septic
             </text>
             <Drain x="320" y="584.5" text="Septic Line" textDir="down" />
-            <AnimatedPipe 
-                stroke={PINKCOLOR} 
-                paths={[[[594.5, 634.5], [484.5, 634.5], [484.5, 524.5], [314.5, 524.5], [314.5, 559]]]} 
+            <AnimatedPipe
+                stroke={PINKCOLOR}
+                paths={[[[594.5, 634.5], [484.5, 634.5], [484.5, 524.5], [314.5, 524.5], [314.5, 559]]]}
                 pipeOn={pipe_info.ft2_to_septic}
             />
-            <AnimatedPipe 
-                stroke={LIGHTBLUECOLOR} 
-                paths={[[[568, 695], [468, 695], [468, 539.5], [328, 539.5], [328, 559.5]]]} 
+            <AnimatedPipe
+                stroke={LIGHTBLUECOLOR}
+                paths={[[[568, 695], [468, 695], [468, 539.5], [328, 539.5], [328, 559.5]]]}
                 pipeOn={pipe_info.av7_to_septic_tank}
             />
         </g>
     );
 }
 
-function ROSystem({md, pipe_info}) {
+function ROSystem({ md, pipe_info }) {
     const av1 = md.get("inletrun", "current_value");
     const p2 = md.get("ropumprun", "current_value");
     const av5 = md.get("concbypassrun", "current_value");
@@ -113,7 +119,7 @@ function ROSystem({md, pipe_info}) {
     const nt1_units = md.get("permnitrate", "units");
     const av3 = md.get("ropressctrlvalveposition", "current_value");
     const av4 = md.get("ropressctrlvalveposition", "current_value");
-    
+
 
     return (
         <>
@@ -121,82 +127,82 @@ function ROSystem({md, pipe_info}) {
             <text x="770" y="40" {...titleProps} textAnchor="middle">
                 REVERSE OSMOSIS SYSTEM
             </text>
-            <AnimatedPipe 
-                stroke={LIGHTBLUECOLOR} 
-                paths={[[[578.5, 200], [858.5, 200], [858.5, 108.5]]]} 
+            <AnimatedPipe
+                stroke={LIGHTBLUECOLOR}
+                paths={[[[578.5, 200], [858.5, 200], [858.5, 108.5]]]}
                 pipeOn={pipe_info.flush_tank_to_system}
             />
-            <AnimatedPipe 
-                paths={[[[859, 100], [892, 100]]]} 
+            <AnimatedPipe
+                paths={[[[859, 100], [892, 100]]]}
                 pipeOn={pipe_info.either_tank_to_system}
-                junctionPositions={[[858.5, 99.5]]} 
+                junctionPositions={[[858.5, 99.5]]}
             />
-            <AnimatedPipe 
-                paths={[[[572, 100], [850, 100]]]} 
+            <AnimatedPipe
+                paths={[[[572, 100], [850, 100]]]}
                 pipeOn={pipe_info.feed_tank_to_system}
             />
-            <AnimatedPipe 
-                paths={[[[958.5, 99.5], [1008.5, 99.5], [1008.5, 269.5], [521.5, 269.5], [521.5, 349.5]]]} 
+            <AnimatedPipe
+                paths={[[[958.5, 99.5], [1008.5, 99.5], [1008.5, 269.5], [521.5, 269.5], [521.5, 349.5]]]}
                 pipeOn={pipe_info.either_tank_to_system}
             />
-            <AnimatedPipe 
-                paths={[[[521.5, 360.5], [724.5, 360.5]]]} 
-                junctionPositions={[[521.5, 360.5]]} 
+            <AnimatedPipe
+                paths={[[[521.5, 360.5], [724.5, 360.5]]]}
+                junctionPositions={[[521.5, 360.5]]}
                 pipeOn={pipe_info.either_tank_to_system}
             />
-            <AnimatedPipe 
-                paths={[[[754.5, 360.5], [822, 360.5], [822, 410.5]]]} 
+            <AnimatedPipe
+                paths={[[[754.5, 360.5], [822, 360.5], [822, 410.5]]]}
                 pipeOn={pipe_info.either_tank_to_system}
             />
-            <AnimatedPipe 
-                paths={[[[521.5, 420.5], [521.5, 370.5]]]} 
+            <AnimatedPipe
+                paths={[[[521.5, 420.5], [521.5, 370.5]]]}
                 pipeOn={pipe_info.recycle_flush}
             />
-            <AnimatedPipe 
-                stroke={PINKCOLOR} 
-                paths={[[[690, 579], [690, 623]]]} 
+            <AnimatedPipe
+                stroke={PINKCOLOR}
+                paths={[[[690, 579], [690, 623]]]}
                 pipeOn={pipe_info.av4_to_ft2}
             />
-            <AnimatedPipe 
-                stroke={PINKCOLOR} 
-                paths={[[[902.5, 458.5], [902.5, 549]]]} 
+            <AnimatedPipe
+                stroke={PINKCOLOR}
+                paths={[[[902.5, 458.5], [902.5, 549]]]}
                 pipeOn={pipe_info.pt4_to_av5 || pipe_info.av3_to_av4}
             />
-            <AnimatedPipe 
-                stroke={PINKCOLOR} 
-                paths={[[[690, 634.5], [627.5, 634.5]]]} 
-                junctionPositions={[[690, 633.5]]} 
+            <AnimatedPipe
+                stroke={PINKCOLOR}
+                paths={[[[690, 634.5], [627.5, 634.5]]]}
+                junctionPositions={[[690, 633.5]]}
                 pipeOn={pipe_info.ft2_to_septic}
             />
-            <AnimatedPipe 
-                stroke={PINKCOLOR} 
-                paths={[[[802.5, 634.5], [700, 634.5]]]} 
+            <AnimatedPipe
+                stroke={PINKCOLOR}
+                paths={[[[802.5, 634.5], [700, 634.5]]]}
                 pipeOn={pipe_info.pt4_to_av5}
             />
             <AnimatedPipe
                 stroke={PINKCOLOR}
                 paths={[[[902.5, 561.5], [724, 561.5]]]}
-                junctionPositions={[[902.5, 561.5]]} 
+                junctionPositions={[[902.5, 561.5]]}
                 pipeOn={pipe_info.av3_to_av4}
             />
-            <AnimatedPipe 
-                stroke={PINKCOLOR} 
-                paths={[[[674, 561.5], [522, 561.5], [522, 464.5]]]} 
+            <AnimatedPipe
+                stroke={PINKCOLOR}
+                paths={[[[674, 561.5], [522, 561.5], [522, 464.5]]]}
                 pipeOn={pipe_info.recycle_flush}
             />
-            <AnimatedPipe 
-                stroke={PINKCOLOR} 
-                paths={[[[902.5, 561.5], [902.5, 635], [868, 635]]]} 
+            <AnimatedPipe
+                stroke={PINKCOLOR}
+                paths={[[[902.5, 561.5], [902.5, 635], [868, 635]]]}
                 pipeOn={pipe_info.pt4_to_av5}
             />
-            <AnimatedPipe 
-                stroke={LIGHTBLUECOLOR} 
-                paths={[[[922.5, 437], [972.5, 437], [972.5, 677], [770.5, 677], [770.5, 689]]]} 
+            <AnimatedPipe
+                stroke={LIGHTBLUECOLOR}
+                paths={[[[922.5, 437], [972.5, 437], [972.5, 677], [770.5, 677], [770.5, 689]]]}
                 pipeOn={pipe_info.either_tank_to_system}
             />
-            <AnimatedPipe 
-                stroke={LIGHTBLUECOLOR} 
-                paths={[[[739.5, 724], [669.5, 724], [669.5, 695], [603.5, 695]]]} 
+            <AnimatedPipe
+                stroke={LIGHTBLUECOLOR}
+                paths={[[[739.5, 724], [669.5, 724], [669.5, 695], [603.5, 695]]]}
                 pipeOn={pipe_info.av6_to_av7}
             />
 
@@ -211,7 +217,7 @@ function ROSystem({md, pipe_info}) {
                 textDir="down"
                 outerText={<TextArray textArray={["MultiMedia", "Filter (MMF)"]} />}
             />
-            <ValveIndicator x="793" y="100" innerText="AV1" flow={av1}/>
+            <ValveIndicator x="793" y="100" innerText="AV1" flow={av1} />
             <DoubleFilter
                 x="932.5"
                 y="118"
@@ -231,8 +237,8 @@ function ROSystem({md, pipe_info}) {
                 textDir="up" />
             <PumpSymbol
                 x="750" y="360"
-                innerText="P2" 
-                flow={p2}/>
+                innerText="P2"
+                flow={p2} />
             <SensorIndicator
                 x="860" y="360"
                 line="left"
@@ -279,7 +285,7 @@ function ROSystem({md, pipe_info}) {
                 textDir="up"
                 outerText={`AV4 ${av4}%`}
                 percentOpen1={av4}
-                percentOpen2={100-av4}
+                percentOpen2={100 - av4}
             />
             <ValveIndicator
                 x="832.5" y="634.5"
@@ -312,16 +318,16 @@ function ROSystem({md, pipe_info}) {
     )
 }
 
-function ROSystemTopLayer({md, pipeinfo}) {
+function ROSystemTopLayer({ md, pipeinfo }) {
     const p1 = md.get("feedpumprun", "current_value");
     const av7 = md.get("flushdiversionrun", "current_value");
     const av6 = md.get("proddiversionrun", "current_value");
-    
+
     return (
         <>
             <PumpSymbol
                 x="491" y="100"
-                innerText="P1" 
+                innerText="P1"
                 flow={p1}
             />
             <CheckValve x="554" y="100" />
@@ -332,14 +338,14 @@ function ROSystemTopLayer({md, pipeinfo}) {
                 innerText="200" />
             <SensorIndicator
                 x="602.5" y="634.5"
-                innerText="FT2" 
+                innerText="FT2"
                 outerText={get_value_unit_string("concentrateflow", md)}
                 textDir="up"
-                />
+            />
             <ThreeWayValveIndicator
                 dir="left"
                 x="568" y="695"
-                innerText="AV7" 
+                innerText="AV7"
                 east={true}
                 north={!av7}
                 west={av7}
@@ -363,7 +369,7 @@ function ROSystemTopLayer({md, pipeinfo}) {
             /> */}
             <ThreeWayValveIndicator
                 x="769" y="725"
-                innerText="AV6" 
+                innerText="AV6"
                 north={true}
                 west={av6}
                 east={!av6}
@@ -372,7 +378,7 @@ function ROSystemTopLayer({md, pipeinfo}) {
     )
 }
 
-function DeliverySystem({md, pipe_info}) {
+function DeliverySystem({ md, pipe_info }) {
     return (
         <>
             <rect rx="10" x="1110" y="10" width="220px" height="450px" fill="#dceef3" />
@@ -385,27 +391,32 @@ function DeliverySystem({md, pipe_info}) {
             <text x="1180" y="90" {...normalTextProps} textAnchor="middle">
                 Distribution
             </text>
-            <AnimatedPipe 
-                stroke={LIGHTBLUECOLOR} 
-                paths={[[[1240, 544.5], [1170, 544.5], [1170, 379.5]]]} 
+            <AnimatedPipe
+                stroke={LIGHTBLUECOLOR}
+                paths={[[[1240, 544.5], [1170, 544.5], [1170, 379.5]]]}
                 pipeOn={pipe_info.av6_to_ct3}
             />
-            <AnimatedPipe 
-                stroke={LIGHTBLUECOLOR} 
-                paths={[[[1201.5, 329], [1271.5, 329], [1271.5, 259]]]} 
+            <AnimatedPipe
+                stroke={LIGHTBLUECOLOR}
+                paths={[[[1201.5, 329], [1271.5, 329], [1271.5, 259]]]}
                 pipeOn={pipe_info.distribution_line}
             />
-            <AnimatedPipe 
-                stroke={LIGHTBLUECOLOR} 
-                paths={[[[1271.5, 215], [1271.5, 145], [1181.5, 145], [1181.5, 105]]]} 
+            <AnimatedPipe
+                stroke={LIGHTBLUECOLOR}
+                paths={[[[1271.5, 215], [1271.5, 145], [1181.5, 145], [1181.5, 105]]]}
                 pipeOn={pipe_info.distribution_line}
             />
             <SensorIndicator
                 x="1181.5" y="262.5" line="down"
                 innerText="LT2"
                 textDir="up"
-                outerText={get_value_unit_string('prodtanklevel', md)} />
-            <LiquidFillGaugeWrapper x="1181.5" y="328.5" />
+                // outerText={get_value_unit_string('prodtanklevel', md)} 
+            />
+            <LiquidFillGaugeWrapper 
+                x="1181.5" 
+                y="328.5" 
+                fillLevel={md.get("prodtanklevel", "current_value")}
+            />
             <PumpSymbol
                 x="1271.5" y="328.5"
                 innerText="P3"
@@ -433,19 +444,19 @@ function DeliverySystem({md, pipe_info}) {
     )
 }
 
-function TreatmentChip({md, pipe_info}) {
+function TreatmentChip({ md, pipe_info }) {
     return (
         <>
             <rect rx="10" x="1110" y="470" width="220px" height="310px" fill="#ebf1de" />
             <ArrowPolyLine stroke='black' points="1251.5,718.5 1251.5,658.5 1191.5,658.5" />
-            <AnimatedPipe 
-                stroke={LIGHTBLUECOLOR} 
-                paths={[[[1198.5, 725], [1302.5, 725], [1302.5, 545], [1271.5, 545]]]} 
+            <AnimatedPipe
+                stroke={LIGHTBLUECOLOR}
+                paths={[[[1198.5, 725], [1302.5, 725], [1302.5, 545], [1271.5, 545]]]}
                 pipeOn={pipe_info.av6_to_ct3}
             />
-            <AnimatedPipe 
-                stroke={LIGHTBLUECOLOR} 
-                paths={[[[769.5, 725], [1155, 725]]]} 
+            <AnimatedPipe
+                stroke={LIGHTBLUECOLOR}
+                paths={[[[769.5, 725], [1155, 725]]]}
                 pipeOn={pipe_info.av6_to_ct3}
             />
             <CheckValve x="1180" y="724.5" />
@@ -459,13 +470,13 @@ function TreatmentChip({md, pipe_info}) {
     )
 }
 
-function SantaTeresaPryorFarmsSchematic({md}) {
+function SantaTeresaPryorFarmsSchematic({ md }) {
     const av6_right = md.get("proddiversionrun", "current_value");
-    const av7_down = ! md.get("flushdiversionrun", "current_value");
+    const av7_down = !md.get("flushdiversionrun", "current_value");
     const p3 = md.get("deliveryrun", "current_value");
 
-    const wp_to_feed_tank = md.get("wellpumprun", "current_value"); 
-    const feed_tank_to_system = md.get("feedpumprun", "current_value"); 
+    const wp_to_feed_tank = md.get("wellpumprun", "current_value");
+    const feed_tank_to_system = md.get("feedpumprun", "current_value");
     const flush_tank_to_system = md.get("runflush", "current_value");
     const p2_to_ro = md.get("ropumprun", "current_value");
     const either_tank_to_system = flush_tank_to_system || feed_tank_to_system;
@@ -475,9 +486,9 @@ function SantaTeresaPryorFarmsSchematic({md}) {
     const pt4_to_av5 = either_tank_to_system && md.get("concbypassrun", "current_value");
     const ft2_to_septic = av4_to_ft2 || pt4_to_av5;
     const av6_to_ct3 = av6_right && either_tank_to_system;
-    const av6_to_av7 =  ! av6_right && either_tank_to_system;
+    const av6_to_av7 = !av6_right && either_tank_to_system;
     const av7_to_flush_tank = av7_down && av6_to_av7;
-    const av7_to_septic_tank = ! av7_down && av6_to_av7;
+    const av7_to_septic_tank = !av7_down && av6_to_av7;
     const distribution_line = p3;
 
 
@@ -501,13 +512,13 @@ function SantaTeresaPryorFarmsSchematic({md}) {
     return (
         <svg width="100%" height="100%" viewBox="0 0 1120 790">
             <g transform="translate(-215,0)">
-                <ROSystem md={md} pipe_info={pipe_info}/>
-                <FeedTankSystem md={md} pipe_info={pipe_info}/>
-                <FlushTankSystem md={md} pipe_info={pipe_info}/>
-                <ResidualSeptic md={md} pipe_info={pipe_info}/>
-                <TreatmentChip md={md} pipe_info={pipe_info}/>
-                <DeliverySystem md={md} pipe_info={pipe_info}/>
-                <ROSystemTopLayer md={md} pipe_info={pipe_info}/>
+                <ROSystem md={md} pipe_info={pipe_info} />
+                <FeedTankSystem md={md} pipe_info={pipe_info} />
+                <FlushTankSystem md={md} pipe_info={pipe_info} />
+                <ResidualSeptic md={md} pipe_info={pipe_info} />
+                <TreatmentChip md={md} pipe_info={pipe_info} />
+                <DeliverySystem md={md} pipe_info={pipe_info} />
+                <ROSystemTopLayer md={md} pipe_info={pipe_info} />
             </g>
         </svg>
     )
