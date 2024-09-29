@@ -34,6 +34,7 @@ import {
 } from "../Components/helperfuncs";
 import Dropdown from "../Components/Dropdown";
 import { Box, Col, Row, Content, Select } from 'adminlte-2-react';
+import StockTicker from "../Components/StockTicker";
 
 
 import BrushChart from "../Components/Chart";
@@ -153,6 +154,8 @@ export default function Todo() {
     const [end_download_date, set_end_download_date] = useState(new Date('2021-01-05'));
     const [download_loading, set_download_loading] = useState(false);
 
+
+
     useEffect(() => {
         // ensures this can only run once
 
@@ -193,21 +196,45 @@ export default function Todo() {
         }));
     };
 
+
+    const chart_click_error_f = () => {
+        console.log("hi")
+        if (!is_playing) { return; }
+        dispatch(pause_playback())
+    }
+
     const charts = sensor_names.map(sensor_name =>
-        <BrushChart
-            title={sensor_table.get(sensor_name, "human_readible_name")}
-            key={sensor_name}
-            brush_1_time={new Date(handle_1_date)}
-            brush_2_time={new Date(handle_2_date)}
-            set_brush_1_time={set_handle_1_date}
-            set_brush_2_time={set_handle_2_date}
-            is_loading={are_caches_loading}
-            data={LTTB(selected_sensors_cache[sensor_name], 800)}
-            on_chart_resize={on_chart_resize}
-            on_drag={() => dispatch(pause_playback())}
-        />);
+        <div onMouseDown={chart_click_error_f}>
+            <div
+                // style={{ pointerEvents: is_playing ? "none" : "auto" }}
+            >
+                <StockTicker
+                    title={sensor_table.get(sensor_name, "human_readible_name")}
+                    data={selected_sensors_cache[sensor_name]}
+                    set_min_value={set_handle_1_date}
+                    set_max_value={set_handle_2_date}
+                    min_value={handle_1_date.getTime()}
+                    max_value={handle_2_date.getTime()}
+                    upon_window_resize={on_chart_resize}
+                    is_loading={are_caches_loading}
+                    allow_user_updates={is_playing}
+                />
+            </div>
+        </div>
+    );
 
     let current_time = new Date((new Date(handle_start).getTime() + new Date(handle_end).getTime()) / 2).toISOString();
+
+    let current_schematic = <></>;
+    if (selected_system === "bluerock") {
+        current_schematic = <BluerockSchematic
+            md={sensor_table}
+        />
+    } else if (selected_system === "santa_teresa" || selected_system === "pryor_farms") {
+        current_schematic = <SantaTeresaPryorFarmsSchematic
+            md={sensor_table}
+        />
+    }
 
     return (<div>
         <div style={{
@@ -250,12 +277,7 @@ export default function Todo() {
             <Row>
                 <Col md={7}>
                     <PrettyBox>
-                        {/* <BluerockSchematic
-                            md={sensor_table}
-                        /> */}
-                        <SantaTeresaPryorFarmsSchematic
-                            md={sensor_table}
-                        />
+                        {current_schematic}
                     </PrettyBox>
                     <PrettyBox>
                         <div style={{ display: "flex", alignItems: "center" }}>

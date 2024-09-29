@@ -11,9 +11,9 @@ const get_min_date = (date_string_1, date_string_2) => {
 }
 
 export const SYSTEMS = [
+    { value: 'santa_teresa', label: 'Santa Teresa' },
     { value: 'bluerock', label: 'Bluerock' },
     { value: 'pryor_farms', label: 'Pryor Farms' },
-    { value: 'santa_teresa', label: 'Santa Teresa' },
 ];
 
 const get_max_date = (date_string_1, date_string_2) => {
@@ -414,7 +414,7 @@ export const change_to_next_time_step_and_refresh = createAsyncThunk(
 export const cachesSlice = createSlice({
     name: "caches",
     initialState: {
-        selected_system: "santa_teresa",
+        selected_system: localStorage.getItem("current_system") || SYSTEMS[0]["value"],
         playing: true,
         test: "not tested",
         selected_sensors_cache_state: "loading",
@@ -520,6 +520,8 @@ export const cachesSlice = createSlice({
         },
         update_selected_system: (state, action) => {
             state.selected_system = action.payload;
+            localStorage.setItem("current_system", action.payload);
+            window.location.reload();
         }
     },
     extraReducers: (builder) => {
