@@ -386,10 +386,13 @@ export function ThreeWayVariablePieValveIndicator({
     const arc1 = f_svg_ellipse_arc([0, 0], [20, 20], [0, PO1 * Math.PI * 2], 0);
     const arcPath1 = `M 0 0 L 20 0 ${arc1.getAttribute('d')} L 0 0`;
     const openArc1 = <path d={arcPath1} fill={PURPLECOLOR} stroke="#000" strokeWidth="2" />;
-
+    
     const arc2 = f_svg_ellipse_arc([0, 0], [20, 20], [0, PO2 * Math.PI * 2], 0);
     const arcPath2 = `M 0 0 L 20 0 ${arc2.getAttribute('d')} L 0 0`;
-    const openArc2 = <path d={arcPath2} fill={YELLOWCOLOR} stroke="#000" strokeWidth="2" />;
+
+    // const openArc2 = arcPath2.includes('NaN')
+    //     ? ""
+    //     : <path d={arcPath2} fill={YELLOWCOLOR} stroke="#000" strokeWidth="2" />;
 
     return (
         <g transform={'translate(' + x + ',' + y + ') '}>
@@ -413,7 +416,7 @@ export function ThreeWayVariablePieValveIndicator({
                 <g transform={`rotate(${innerDir})`}>
                     {openArc1}
                     <g transform={`scale(1,-1)`}>
-                        {openArc2}
+                        {/* {openArc2} */}
                     </g>
                 </g>
                 <StaticRelativeText
@@ -1142,7 +1145,6 @@ export function Key() {
 export function LiquidFillGaugeWrapper({ x = "0", y = "0", fillLevel = 50, text = "", textDir = "right" }) {
     let percent_full = (parseFloat(`${fillLevel}`)/100);
     let percent_full_draw = Math.max(Math.min(percent_full, 1), 0);
-
     return (<>
         {/* <LiquidFillGauge // rerendering this was causing memory leaks :(
             scale={1.5}
@@ -1152,17 +1154,17 @@ export function LiquidFillGaugeWrapper({ x = "0", y = "0", fillLevel = 50, text 
         
         <g transform={`translate(${x},${y})`}>
             <rect 
-                x={-29} y={-31}
+                x={`${-29}`} y={`${-31}`}
                 width="60" 
                 height="75"
                 fill="#fff" 
                 stroke="#000" strokeWidth="2" />
-            <rect 
-                x={-26} y={41 - percent_full_draw * 69}
+            {percent_full_draw && <rect 
+                x={`${-26}`} y={`${41 - percent_full_draw * 69}`}
                 width="54" 
                 height={`${percent_full_draw * 69}` } 
                 fill="#68b7fc" 
-                strokeWidth="0" />
+                strokeWidth="0" />}
             <text
                 x="0" y="5"
                 textAnchor='middle'
@@ -1413,15 +1415,28 @@ export function AnimatedPipe({
     );
 
     const innerDottedPolylines = ! animated ? null : pipeStrings.map((pipeString, index) =>
-        <motion.polyline
+        // <motion.polyline
+        //     points={pipeString}
+        //     strokeWidth={pWidth - 3}
+        //     stroke="white"
+        //     fill="none"
+        //     strokeDasharray="3 10"
+        //     animate={{
+        //         strokeDashoffset: [0, speed === 0 ? 0 : -13]
+        //     }}
+        //     key={`innerDottedPolyline${index}${JSON.stringify(paths)}`}
+        //     transition={{
+        //         ease: "linear",
+        //         times: [0, 1],
+        //         duration: 5 / (speed === 0 ? 1 : speed),
+        //         repeat: Infinity,
+        //     }}
+        // />
+        <polyline
             points={pipeString}
-            strokeWidth={pWidth - 3}
+            strokeWidth={0}
             stroke="white"
             fill="none"
-            strokeDasharray="3 10"
-            animate={{
-                strokeDashoffset: [0, speed === 0 ? 0 : -13]
-            }}
             key={`innerDottedPolyline${index}${JSON.stringify(paths)}`}
             transition={{
                 ease: "linear",

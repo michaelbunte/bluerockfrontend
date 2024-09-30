@@ -83,46 +83,61 @@ function UserSensorTable() {
     const sensor_table_data = Object.keys(modal_table_dict)
         .sort()
         .filter(value => value != "get")
-        .map(key => ({
-            "sensor": modal_table_dict.get(key, "human_readible_name")
-                + (modal_table_dict.get(key, "abbreviated_name") && " (" + modal_table_dict.get(key, "abbreviated_name") + ")"),
-            "selectbox_display": <input
-                type="checkbox"
-                key={key}
-                checked={user_selected_sensors.has(key)}
-                onClick={async (e) => {
-                    let us = new Set(user_selected_sensors);
+        .map(key => {
+            let sensor_name_arr = [];
+            if (modal_table_dict.get(key, "human_readible_name")) {
+                sensor_name_arr.push(modal_table_dict.get(key, "human_readible_name"));
+            }
+            if (modal_table_dict.get(key, "internal_data_name")) {
+                sensor_name_arr.push(modal_table_dict.get(key, "internal_data_name"));
+            }
+            if (modal_table_dict.get(key, "abbreviated_name")) {
+                sensor_name_arr.push(modal_table_dict.get(key, "abbreviated_name"));
+            }
+            let sensor_name_string = sensor_name_arr.join(", ");
 
-                    if (us.has(key)) {
-                        us.delete(key);
-                    } else {
-                        us.add(key);
-                    }
+            return {
+                "sensor": sensor_name_string,
+                "key": sensor_name_string,
+                "selectbox_display": <input
+                    type="checkbox"
+                    // readOnly={true}
+                    defaultChecked
+                    key={key}
+                    checked={user_selected_sensors.has(key)}
+                    onClick={(e) => {
+                        let us = new Set(user_selected_sensors);
 
-                    await dispatch(update_sensor_list({
-                        set_selected_sensors_to_loading: true,
-                        selected_sensors: Array.from(us)
-                    }));
+                        if (us.has(key)) {
+                            us.delete(key);
+                        } else {
+                            us.add(key);
+                        }
 
-                }}
-                readOnly
-            />,
-            "selectbox_download": <input
-                type="checkbox"
-                key={key}
-                checked={user_selected_downloads.has(key)}
-                onClick={() => {
-                    let us = new Set(user_selected_downloads);
-                    if (us.has(key)) {
-                        us.delete(key);
-                    } else {
-                        us.add(key);
-                    }
+                        dispatch(update_sensor_list({
+                            set_selected_sensors_to_loading: true,
+                            selected_sensors: Array.from(us)
+                        }));
 
-                    dispatch(update_selected_downloadable_sensors(Array.from(us)));
-                }}
-            />
-        }))
+                    }}
+                />,
+                "selectbox_download": <input
+                    type="checkbox"
+                    key={key}
+                    checked={user_selected_downloads.has(key)}
+                    onClick={() => {
+                        let us = new Set(user_selected_downloads);
+                        if (us.has(key)) {
+                            us.delete(key);
+                        } else {
+                            us.add(key);
+                        }
+
+                        dispatch(update_selected_downloadable_sensors(Array.from(us)));
+                    }}
+                />
+            }
+        })
 
     return <SmartTable
         columns={tableColumns}
@@ -198,28 +213,23 @@ export default function Todo() {
 
 
     const chart_click_error_f = () => {
-        console.log("hi")
         if (!is_playing) { return; }
         dispatch(pause_playback())
     }
 
     const charts = sensor_names.map(sensor_name =>
-        <div onMouseDown={chart_click_error_f}>
-            <div
-                // style={{ pointerEvents: is_playing ? "none" : "auto" }}
-            >
-                <StockTicker
-                    title={sensor_table.get(sensor_name, "human_readible_name")}
-                    data={selected_sensors_cache[sensor_name]}
-                    set_min_value={set_handle_1_date}
-                    set_max_value={set_handle_2_date}
-                    min_value={handle_1_date.getTime()}
-                    max_value={handle_2_date.getTime()}
-                    upon_window_resize={on_chart_resize}
-                    is_loading={are_caches_loading}
-                    allow_user_updates={is_playing}
-                />
-            </div>
+        <div onMouseDown={chart_click_error_f} key={sensor_name}>
+            <StockTicker
+                title={sensor_table.get(sensor_name, "human_readible_name")}
+                data={selected_sensors_cache[sensor_name]}
+                set_min_value={set_handle_1_date}
+                set_max_value={set_handle_2_date}
+                min_value={handle_1_date.getTime()}
+                max_value={handle_2_date.getTime()}
+                upon_window_resize={on_chart_resize}
+                is_loading={are_caches_loading}
+                allow_user_updates={is_playing}
+            />
         </div>
     );
 
