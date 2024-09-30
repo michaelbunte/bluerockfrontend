@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react"
 import { useSelector, useDispatch } from 'react-redux';
 import { Button, ButtonGroup, SmartTable } from 'adminlte-2-react';
-import { LTTB } from 'downsample';
+import {
+    DoublePlay,
+    SinglePlay,
+    Pause,
+    SkipSmall,
+    SkipLarge,
+    SkipSmallLeft,
+    SkipLargeLeft
+} from "../Components/playbackcomponents";
 import {
     initial_page_load,
     update_handle_1_date,
@@ -169,7 +177,37 @@ export default function Todo() {
     const [end_download_date, set_end_download_date] = useState(new Date('2021-01-05'));
     const [download_loading, set_download_loading] = useState(false);
 
+    function get_handles_and_diff() {
+        const handle_diff = new Date(handle_2_date).getTime() - new Date(handle_1_date).getTime();
+        const h1 = new Date(handle_1_date).getTime();
+        const h2 = new Date(handle_2_date).getTime();
+        return [h1, h2, handle_diff];
+    }
 
+    function update_handles(h1, h2) {
+        dispatch(update_handle_1_date(new Date(h1).toISOString()));
+        dispatch(update_handle_2_date(new Date(h2).toISOString()));
+    }
+
+    function skipforwardssmall() {
+        const [h1, h2, handle_diff] = get_handles_and_diff()
+        update_handles(h1 + handle_diff / 200, h2 + handle_diff / 200);
+    }
+
+    function skipbackwardssmall() {
+        const [h1, h2, handle_diff] = get_handles_and_diff()
+        update_handles(h1 - handle_diff / 200, h2 - handle_diff / 200);
+    }
+
+    function skipbackwardslarge() {
+        const [h1, h2, handle_diff] = get_handles_and_diff()
+        update_handles(h1 - handle_diff / 15, h2 - handle_diff / 15);
+    }
+
+    function skipforwardslarge() {
+        const [h1, h2, handle_diff] = get_handles_and_diff()
+        update_handles(h1 + handle_diff / 15, h2 + handle_diff / 15);
+    }
 
     useEffect(() => {
         // ensures this can only run once
@@ -294,14 +332,29 @@ export default function Todo() {
                             <div style={{ padding: "10px" }}>
                                 <ButtonGroup>
                                     <Button
+                                        text={<div ><SkipLargeLeft /></div>}
+                                        onClick={skipbackwardslarge} />
+                                    <Button
+                                        text={<div> <SkipSmallLeft /></div>}
+                                        onClick={skipbackwardssmall}
+                                    />
+                                    <Button
                                         text={is_playing
-                                            ? <div style={{ letterSpacing: "-2px" }}>▮▮</div>
-                                            : <div>▶</div>}
+                                            ? <Pause />
+                                            : <div><SinglePlay /></div>}
                                         onClick={() => dispatch(toggle_playback())}
                                     />
                                     <Button
-                                        text={<div style={{ letterSpacing: "-3px" }}>▶▶</div>}
+                                        text={<div ><DoublePlay /></div>}
                                         onClick={() => { dispatch(change_to_next_time_step_and_refresh()) }} />
+                                    <Button
+                                        text={<div> <SkipSmall /></div>}
+                                        onClick={skipforwardssmall}
+                                    />
+                                    <Button
+                                        text={<SkipLarge />}
+                                        onClick={skipforwardslarge}
+                                    />
                                 </ButtonGroup>
                             </div>
                             <MiniCard
