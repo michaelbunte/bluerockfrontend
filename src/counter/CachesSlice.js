@@ -415,7 +415,7 @@ export const cachesSlice = createSlice({
     name: "caches",
     initialState: {
         selected_system: localStorage.getItem("current_system") || SYSTEMS[0]["value"],
-        playing: true,
+        playing: false,
         test: "not tested",
         selected_sensors_cache_state: "loading",
         selected_sensors_cache: {},

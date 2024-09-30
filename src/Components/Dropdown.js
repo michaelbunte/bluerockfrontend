@@ -1,10 +1,10 @@
-import { useState } from 'react';
-
-
-
 function WaterSystemSelector({choices, selected_system, handle_change}) {
     let ops = choices.map(
-            option => <option id={option["value"]} key={option["value"]} value={option["value"]}>{option["label"]}</option>
+            option => <option 
+                id={option["value"]} 
+                key={option["value"]} 
+                value={option["value"]}>{option["label"]}
+            </option>
         )
 
     return (
