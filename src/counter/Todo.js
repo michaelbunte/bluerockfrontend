@@ -14,7 +14,7 @@ import {
     initial_page_load,
     update_handle_1_date,
     update_handle_2_date,
-    handle_time_increment,
+    handle_time_update,
     update_sensor_list,
     select_sensor_table,
     select_loading,
@@ -187,7 +187,7 @@ export default function Todo() {
     function update_handles(h1, h2) {
         dispatch(update_handle_1_date(new Date(h1).toISOString()));
         dispatch(update_handle_2_date(new Date(h2).toISOString()));
-        dispatch(handle_time_increment({ignore_cache_state: true}));
+        dispatch(handle_time_update({ignore_cache_state: true}));
     }
 
     function skipforwardssmall() {
@@ -221,7 +221,7 @@ export default function Todo() {
                 selected_sensors: ["permtemp"]
             }));
             
-            dispatch(handle_time_increment({ignore_cache_state: true}));
+            dispatch(handle_time_update({ignore_cache_state: true}));
         }
         load();
         set_is_init_load(false);
@@ -235,7 +235,7 @@ export default function Todo() {
     useEffect(() => {
         const interval = setInterval(async () => {
             if (is_playing) {
-                dispatch(handle_time_increment());
+                dispatch(handle_time_update());
             }
         }, 1000 / PLAYBACK_HZ);
         return () => clearInterval(interval);
@@ -253,7 +253,7 @@ export default function Todo() {
             set_selected_sensors_to_loading: true,
             selected_sensors: Array.from(user_selected_sensors)
         }));
-        dispatch(handle_time_increment({ignore_cache_state: true}));
+        dispatch(handle_time_update({ignore_cache_state: true}));
     };
 
 

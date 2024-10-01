@@ -319,8 +319,8 @@ export const update_playback_cache_async = createAsyncThunk(
     }
 )
 
-export const handle_time_increment = createAsyncThunk(
-    "caches/handle_time_increment",
+export const handle_time_update = createAsyncThunk(
+    "caches/handle_time_update",
     async (args, { dispatch, getState }) => {
         const state = getState();
 
@@ -328,7 +328,7 @@ export const handle_time_increment = createAsyncThunk(
         try {
             ignore_cache_state = args["ignore_cache_state"];
         } catch { };
-        
+
         if (
             !ignore_cache_state && (
                 state.caches.selected_sensors_cache_state != "loaded"
@@ -548,7 +548,7 @@ export const cachesSlice = createSlice({
                 console.error(error)
             })
 
-            .addCase(handle_time_increment.rejected, (state, error) => {
+            .addCase(handle_time_update.rejected, (state, error) => {
                 console.error(error);
             })
     }
