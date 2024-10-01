@@ -187,6 +187,7 @@ export default function Todo() {
     function update_handles(h1, h2) {
         dispatch(update_handle_1_date(new Date(h1).toISOString()));
         dispatch(update_handle_2_date(new Date(h2).toISOString()));
+        dispatch(handle_time_increment({ignore_cache_state: true}));
     }
 
     function skipforwardssmall() {
@@ -219,6 +220,8 @@ export default function Todo() {
                 set_selected_sensors_to_loading: false,
                 selected_sensors: ["permtemp"]
             }));
+            
+            dispatch(handle_time_increment({ignore_cache_state: true}))
         }
         load();
         set_is_init_load(false);

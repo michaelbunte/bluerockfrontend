@@ -54,7 +54,7 @@ let host_string = "localhost:5001"
 
 export const initial_page_load = createAsyncThunk(
     'caches/initial_page_load',
-    async (amount, {getState}) => {
+    async (amount, { getState }) => {
         const state = getState();
         let [sensor_table, plcrange] = await Promise.all([
             fetch(`http://${host_string}/sensor_info_table/${state.caches.selected_system}`)
@@ -321,11 +321,19 @@ export const update_playback_cache_async = createAsyncThunk(
 
 export const handle_time_increment = createAsyncThunk(
     "caches/handle_time_increment",
-    async (amount, { dispatch, getState }) => {
+    async (args, { dispatch, getState }) => {
         const state = getState();
+
+        let ignore_cache_state = false;
+        try {
+            ignore_cache_state = args["ignore_cache_state"];
+        } catch { };
+        
         if (
-            state.caches.selected_sensors_cache_state != "loaded"
-            || state.caches.playback_cache_state != "loaded"
+            !ignore_cache_state && (
+                state.caches.selected_sensors_cache_state != "loaded"
+                || state.caches.playback_cache_state != "loaded"
+            )
         ) {
             return;
         }
@@ -615,6 +623,6 @@ export const select_sensor_table = createSelector(
 
 export const select_user_selected_sensors = createSelector([
     state => state.caches.selected_sensors_cache
-], (selected_sensor_cache)=>new Set(Object.keys(selected_sensor_cache)));
+], (selected_sensor_cache) => new Set(Object.keys(selected_sensor_cache)));
 
 export default cachesSlice.reducer;
