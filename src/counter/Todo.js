@@ -221,7 +221,7 @@ export default function Todo() {
                 selected_sensors: ["permtemp"]
             }));
             
-            dispatch(handle_time_increment({ignore_cache_state: true}))
+            dispatch(handle_time_increment({ignore_cache_state: true}));
         }
         load();
         set_is_init_load(false);
@@ -246,12 +246,14 @@ export default function Todo() {
     const sensor_names = Object.keys(selected_sensors_cache);
 
     const on_chart_resize = async (low, high) => {
+
         await dispatch(update_handle_1_date(new Date(low).toISOString()));
         await dispatch(update_handle_2_date(new Date(high).toISOString()));
         await dispatch(update_sensor_list({
             set_selected_sensors_to_loading: true,
             selected_sensors: Array.from(user_selected_sensors)
         }));
+        dispatch(handle_time_increment({ignore_cache_state: true}));
     };
 
 
