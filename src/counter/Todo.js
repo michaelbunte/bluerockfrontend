@@ -231,10 +231,12 @@ export default function Todo() {
 
     useEffect(() => {
         const interval = setInterval(async () => {
-            await dispatch(handle_time_increment());
+            if (is_playing) {
+                dispatch(handle_time_increment());
+            }
         }, 1000 / PLAYBACK_HZ);
         return () => clearInterval(interval);
-    }, []);
+    }, [is_playing]);
 
     const selected_sensors_cache = useSelector(state => state.caches.selected_sensors_cache);
 

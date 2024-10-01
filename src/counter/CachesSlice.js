@@ -324,8 +324,7 @@ export const handle_time_increment = createAsyncThunk(
     async (amount, { dispatch, getState }) => {
         const state = getState();
         if (
-            !state.caches.playing
-            || state.caches.selected_sensors_cache_state != "loaded"
+            state.caches.selected_sensors_cache_state != "loaded"
             || state.caches.playback_cache_state != "loaded"
         ) {
             return;
