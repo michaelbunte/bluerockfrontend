@@ -187,7 +187,7 @@ export default function Todo() {
     function update_handles(h1, h2) {
         dispatch(update_handle_1_date(new Date(h1).toISOString()));
         dispatch(update_handle_2_date(new Date(h2).toISOString()));
-        dispatch(handle_time_update({ignore_cache_state: true}));
+        dispatch(handle_time_update({ ignore_cache_state: true }));
     }
 
     function skipforwardssmall() {
@@ -220,8 +220,8 @@ export default function Todo() {
                 set_selected_sensors_to_loading: false,
                 selected_sensors: ["permtemp"]
             }));
-            
-            dispatch(handle_time_update({ignore_cache_state: true}));
+
+            dispatch(handle_time_update({ ignore_cache_state: true }));
         }
         load();
         set_is_init_load(false);
@@ -235,7 +235,9 @@ export default function Todo() {
     useEffect(() => {
         const interval = setInterval(async () => {
             if (is_playing) {
-                dispatch(handle_time_update());
+                dispatch(handle_time_update({
+                    increment_time: true
+                }));
             }
         }, 1000 / PLAYBACK_HZ);
         return () => clearInterval(interval);
@@ -253,7 +255,7 @@ export default function Todo() {
             set_selected_sensors_to_loading: true,
             selected_sensors: Array.from(user_selected_sensors)
         }));
-        dispatch(handle_time_update({ignore_cache_state: true}));
+        dispatch(handle_time_update({ ignore_cache_state: true }));
     };
 
 
@@ -290,6 +292,30 @@ export default function Todo() {
             md={sensor_table}
         />
     }
+
+    const buttons_info = [
+        [skipbackwardslarge, <SkipLargeLeft/>],
+        [skipbackwardssmall, <SkipSmallLeft/>],
+        [
+            () => dispatch(toggle_playback()),
+            is_playing ? <Pause /> : <SinglePlay />
+        ],
+        [
+            () => dispatch(change_to_next_time_step_and_refresh()),
+            <DoublePlay/>
+        ],
+        [skipforwardssmall, <SkipSmall/>],
+        [skipforwardslarge, <SkipLarge/>]
+    ];
+
+    const buttons = buttons_info.map((info, idx) => (
+        <Button
+            onClick={info[0]}
+            text={info[1]}
+            key={idx}
+            disabled={are_caches_loading}
+        />
+    ))
 
     return (<div>
         <div style={{
@@ -338,30 +364,7 @@ export default function Todo() {
                         <div style={{ display: "flex", alignItems: "center" }}>
                             <div style={{ padding: "10px" }}>
                                 <ButtonGroup>
-                                    <Button
-                                        text={<div ><SkipLargeLeft /></div>}
-                                        onClick={skipbackwardslarge} />
-                                    <Button
-                                        text={<div> <SkipSmallLeft /></div>}
-                                        onClick={skipbackwardssmall}
-                                    />
-                                    <Button
-                                        text={is_playing
-                                            ? <Pause />
-                                            : <div><SinglePlay /></div>}
-                                        onClick={() => dispatch(toggle_playback())}
-                                    />
-                                    <Button
-                                        text={<div ><DoublePlay /></div>}
-                                        onClick={() => { dispatch(change_to_next_time_step_and_refresh()) }} />
-                                    <Button
-                                        text={<div> <SkipSmall /></div>}
-                                        onClick={skipforwardssmall}
-                                    />
-                                    <Button
-                                        text={<SkipLarge />}
-                                        onClick={skipforwardslarge}
-                                    />
+                                    {buttons}
                                 </ButtonGroup>
                             </div>
                             <MiniCard

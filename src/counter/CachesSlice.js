@@ -325,8 +325,13 @@ export const handle_time_update = createAsyncThunk(
         const state = getState();
 
         let ignore_cache_state = false;
+        let increment_time = false;
+        
         try {
             ignore_cache_state = args["ignore_cache_state"];
+        } catch { };
+        try { 
+            increment_time = args["increment_time"];
         } catch { };
 
         if (
@@ -347,15 +352,19 @@ export const handle_time_update = createAsyncThunk(
             min_date < new Date(state.caches.most_recent_completed_query.start)
             || max_date > new Date(state.caches.most_recent_completed_query.end)
         ) {
+            console.log("invalid")
             await dispatch(update_sensor_list({
                 set_selected_sensors_to_loading: true,
                 selected_sensors: Object.keys(state.caches.selected_sensors_cache)
             }));
-            return;
+            // return;
         }
 
-        await Promise.all([dispatch({ type: "caches/increment_handle_positions" }), dispatch(update_playback_cache_async())])
-
+        if (increment_time) {
+            await Promise.all([dispatch({ type: "caches/increment_handle_positions" }), dispatch(update_playback_cache_async())]);
+        } else {
+            dispatch(update_playback_cache_async());
+        }
 
         // Check to see that the most recent query actually could actually be a
         // valid cache range.
