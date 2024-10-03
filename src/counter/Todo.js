@@ -109,13 +109,13 @@ function UserSensorTable() {
                 "key": sensor_name_string,
                 "selectbox_display": <input
                     type="checkbox"
-                    // readOnly={true}
                     defaultChecked
                     key={key}
                     checked={user_selected_sensors.has(key)}
                     onClick={(e) => {
                         let us = new Set(user_selected_sensors);
-
+                        console.log(key)
+                        console.log(e)
                         if (us.has(key)) {
                             us.delete(key);
                         } else {
@@ -294,18 +294,18 @@ export default function Todo() {
     }
 
     const buttons_info = [
-        [skipbackwardslarge, <SkipLargeLeft/>],
-        [skipbackwardssmall, <SkipSmallLeft/>],
+        [skipbackwardslarge, <SkipLargeLeft />],
+        [skipbackwardssmall, <SkipSmallLeft />],
         [
             () => dispatch(toggle_playback()),
             is_playing ? <Pause /> : <SinglePlay />
         ],
         [
             () => dispatch(change_to_next_time_step_and_refresh()),
-            <DoublePlay/>
+            <DoublePlay />
         ],
-        [skipforwardssmall, <SkipSmall/>],
-        [skipforwardslarge, <SkipLarge/>]
+        [skipforwardssmall, <SkipSmall />],
+        [skipforwardslarge, <SkipLarge />]
     ];
 
     const buttons = buttons_info.map((info, idx) => (
@@ -382,7 +382,26 @@ export default function Todo() {
                         </div>
                     </PrettyBox>
                     <PrettyBox>
-                        <UserSensorTable />
+                        <div style={{ position: "relative" }}>
+                            <UserSensorTable />
+                            {are_caches_loading && <div style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                width: "100%",
+                                height: "100%",
+                                backgroundColor: "rgba(0,0,0,0.2)",
+                                zIndex: "1000",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: "30px"
+                            }}>
+                                Loading
+                            </div>}
+                        </div>
                     </PrettyBox>
                     <PrettyBox>
                         <ButtonGroup>
