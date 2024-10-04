@@ -88,13 +88,18 @@ export const update_sensor_list = createAsyncThunk(
     async (args, { dispatch, getState }) => {
         let {
             set_selected_sensors_to_loading,
-            selected_sensors
+            selected_sensors,
+            keep_previous_sensors
         } = args;
 
         if (set_selected_sensors_to_loading) {
             await dispatch({
                 type: "caches/set_selected_sensors_cache_to_loading"
             });
+        }
+
+        if (keep_previous_sensors) {
+            selected_sensors = Object.keys(state.caches.selected_sensors_cache)
         }
 
         let state = getState();

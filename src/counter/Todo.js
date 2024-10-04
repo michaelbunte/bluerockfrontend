@@ -84,7 +84,6 @@ function UserSensorTable() {
     const user_selected_sensors = useSelector(select_user_selected_sensors);
     const user_selected_downloads = new Set(useSelector(state => state.caches.selected_downloadable_sensors));
 
-
     const sensor_table_data = Object.keys(modal_table_dict)
         .sort()
         .filter(value => value != "get")
@@ -242,12 +241,12 @@ export default function Todo() {
     const sensor_names = Object.keys(selected_sensors_cache);
 
     const on_chart_resize = async (low, high) => {
-
         await dispatch(update_handle_1_date(new Date(low).toISOString()));
         await dispatch(update_handle_2_date(new Date(high).toISOString()));
         await dispatch(update_sensor_list({
             set_selected_sensors_to_loading: true,
-            selected_sensors: Array.from(user_selected_sensors)
+            keep_previous_sensors: true
+            // selected_sensors: Array.from(user_selected_sensors_2)
         }));
         dispatch(handle_time_update({ ignore_cache_state: true }));
     };
