@@ -175,7 +175,7 @@ export default function StockTicker({
           Loading...
         </div>
       )}
-      <div ref={containerRef} style={{ height: '400px', width: '600px' }}></div>
+      <div ref={containerRef} style={{ height: '100%', width: '100%' }}></div>
     </div>
   );
 }

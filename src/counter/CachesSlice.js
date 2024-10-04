@@ -383,6 +383,7 @@ export const handle_time_update = createAsyncThunk(
             || window_ratio > 1.1 + CACHE_OVERFLOW_RATIO
             || most_recent_query_start > min_date
         ) {
+            console.log("updating")
             await dispatch(update_sensor_list({
                 set_selected_sensors_to_loading: false,
                 selected_sensors: Object.keys(state.caches.selected_sensors_cache)

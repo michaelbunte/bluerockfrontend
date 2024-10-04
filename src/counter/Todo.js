@@ -287,6 +287,7 @@ export default function Todo() {
         />
     }
 
+
     const buttons_info = [
         [skipbackwardslarge, <SkipLargeLeft />],
         [skipbackwardssmall, <SkipSmallLeft />],
@@ -439,7 +440,7 @@ export default function Todo() {
                     </PrettyBox>
 
                 </Col>
-                <Col md={4} style={{ width: "695px" }}>
+                <Col md={5}>
                     <PrettyBox>
                         <>
                             {charts}
