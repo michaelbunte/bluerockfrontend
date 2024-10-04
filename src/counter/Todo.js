@@ -10,6 +10,9 @@ import {
     SkipSmallLeft,
     SkipLargeLeft
 } from "../Components/playbackcomponents";
+
+import SearchableTable from "../Components/SearchableTable";
+
 import {
     initial_page_load,
     update_handle_1_date,
@@ -70,15 +73,9 @@ function pretty_string_selected_system(system_name) {
 
 
 const tableColumns = [
-    { title: 'Sensor', data: 'sensor' },
-    { title: 'Display', data: 'selectbox_display' },
-    { title: 'Download', data: 'selectbox_download' },
-    {
-        backgroundColor: 'lightcoral',
-        padding: '20px',
-        textAlign: 'center',
-        marginLeft: 'auto',
-    }
+    { title: 'Sensor', data: 'sensor', key: "sensor" },
+    { title: 'Display', data: 'selectbox_display', key: "selectbox_display" },
+    { title: 'Download', data: 'selectbox_download', key: "selectbox_download" }
 ];
 
 function UserSensorTable() {
@@ -147,13 +144,10 @@ function UserSensorTable() {
             }
         })
 
-    return <SmartTable
+    return <SearchableTable
         columns={tableColumns}
         data={sensor_table_data}
-        striped={true}
-        condensed={true}
-        pageSize={10}
-        selectedRows={[]}
+        filterable_columns={['sensor']}
     />
 }
 
@@ -382,7 +376,10 @@ export default function Todo() {
                         </div>
                     </PrettyBox>
                     <PrettyBox>
-                        <div style={{ position: "relative" }}>
+                        <div style={{ 
+                                position: "relative",
+                                minHeight: '670px'
+                             }}>
                             <UserSensorTable />
                             {are_caches_loading && <div style={{
                                 position: "absolute",
