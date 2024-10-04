@@ -8,6 +8,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "adminlte-2-react": "^0.2.2-beta.3",
+    "antd": "^5.21.2",
     "d3": "^7.9.0",
     "downsample": "^1.4.0",
     "framer-motion": "^11.1.7",

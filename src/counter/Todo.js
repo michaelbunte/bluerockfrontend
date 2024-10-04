@@ -73,9 +73,9 @@ function pretty_string_selected_system(system_name) {
 
 
 const tableColumns = [
-    { title: 'Sensor', data: 'sensor', key: "sensor" },
-    { title: 'Display', data: 'selectbox_display', key: "selectbox_display" },
-    { title: 'Download', data: 'selectbox_download', key: "selectbox_download" }
+    { title: 'Sensor', dataIndex: 'sensor', key: "sensor" },
+    { title: 'Display', dataIndex: 'selectbox_display', key: "selectbox_display" },
+    { title: 'Download', dataIndex: 'selectbox_download', key: "selectbox_download" }
 ];
 
 function UserSensorTable() {
