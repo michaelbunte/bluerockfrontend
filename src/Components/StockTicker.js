@@ -48,7 +48,6 @@ export default function StockTicker({
   }
 
   try {
-    console.log(redrawn_data[0][1])
     if (redrawn_data[2][1] === true || redrawn_data[2][1] === false) {
       const newly_rewdrawn_data = redrawn_data.map(value => [value[0], Number(value[1])])
       redrawn_data = newly_rewdrawn_data;
