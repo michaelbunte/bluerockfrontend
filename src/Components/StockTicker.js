@@ -47,11 +47,15 @@ export default function StockTicker({
     max_time = 0;
   }
 
+  try {
+    console.log(redrawn_data[0][1])
+    if (redrawn_data[2][1] === true || redrawn_data[2][1] === false) {
+      const newly_rewdrawn_data = redrawn_data.map(value => [value[0], Number(value[1])])
+      redrawn_data = newly_rewdrawn_data;
+    }
+  } catch {}
+
   const on_nav_movement = (e) => {
-    // if (!allow_user_updates) {
-    //   setAxisExtremes(min_value_millis, max_value_millis);
-    //   return;
-    // }
     // App crashes if operating on wrong trigger type
     if (e.triggerOp != "navigator-drag" && e.trigger != 'zoom') {
       setAxisExtremes(min_value_millis, max_value_millis);

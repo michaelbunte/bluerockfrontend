@@ -78,6 +78,20 @@ const tableColumns = [
     { title: 'Download', dataIndex: 'selectbox_download', key: "selectbox_download" }
 ];
 
+function create_extended_name(key, modal_table_dict) {
+    let sensor_name_arr = [];
+    if (modal_table_dict.get(key, "human_readible_name")) {
+        sensor_name_arr.push(modal_table_dict.get(key, "human_readible_name"));
+    }
+    if (modal_table_dict.get(key, "internal_data_name")) {
+        sensor_name_arr.push(modal_table_dict.get(key, "internal_data_name"));
+    }
+    if (modal_table_dict.get(key, "abbreviated_name")) {
+        sensor_name_arr.push(modal_table_dict.get(key, "abbreviated_name"));
+    }
+    return sensor_name_arr.join(", ") || "";
+}
+
 function UserSensorTable() {
     const dispatch = useDispatch();
     const modal_table_dict = useSelector(select_sensor_table);
@@ -88,17 +102,7 @@ function UserSensorTable() {
         .sort()
         .filter(value => value != "get")
         .map(key => {
-            let sensor_name_arr = [];
-            if (modal_table_dict.get(key, "human_readible_name")) {
-                sensor_name_arr.push(modal_table_dict.get(key, "human_readible_name"));
-            }
-            if (modal_table_dict.get(key, "internal_data_name")) {
-                sensor_name_arr.push(modal_table_dict.get(key, "internal_data_name"));
-            }
-            if (modal_table_dict.get(key, "abbreviated_name")) {
-                sensor_name_arr.push(modal_table_dict.get(key, "abbreviated_name"));
-            }
-            let sensor_name_string = sensor_name_arr.join(", ");
+            let sensor_name_string = create_extended_name(key, modal_table_dict);
 
             return {
                 "sensor": sensor_name_string,
@@ -152,6 +156,7 @@ export default function Todo() {
     const dispatch = useDispatch();
     const handle_start = useSelector(state => state.caches.handle_1_date);
     const handle_end = useSelector(state => state.caches.handle_2_date);
+    const modal_table_dict = useSelector(select_sensor_table);
     const sensor_table = useSelector(select_sensor_table);
     const are_caches_loading = useSelector(select_loading);
     const is_playing = useSelector(state => state.caches.playing)
@@ -256,10 +261,12 @@ export default function Todo() {
     }
 
     const charts = sensor_names.map(sensor_name => {
-        let title = "";
-        try {
-            title = sensor_table.get(sensor_name, "human_readible_name");
-        } catch {}
+        let title = create_extended_name(sensor_name, modal_table_dict);
+        let units = modal_table_dict.get(sensor_name, "units");
+        if(units) {
+            title += ` (${units})`
+        }
+
         return <div onMouseDown={chart_click_error_f} key={sensor_name}>
             <StockTicker
                 title={title}
@@ -356,6 +363,7 @@ export default function Todo() {
                 <Col md={7}>
                     <PrettyBox>
                         {current_schematic}
+                        Pipe highlighting is determined by pump and valve states, not by actual flow measurements
                     </PrettyBox>
                     <PrettyBox>
                         <div style={{ display: "flex", alignItems: "center" }}>
