@@ -110,8 +110,6 @@ function UserSensorTable() {
                     checked={user_selected_sensors.has(key)}
                     onClick={(e) => {
                         let us = new Set(user_selected_sensors);
-                        console.log(key)
-                        console.log(e)
                         if (us.has(key)) {
                             us.delete(key);
                         } else {

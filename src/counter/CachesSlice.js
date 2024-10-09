@@ -357,7 +357,6 @@ export const handle_time_update = createAsyncThunk(
             min_date < new Date(state.caches.most_recent_completed_query.start)
             || max_date > new Date(state.caches.most_recent_completed_query.end)
         ) {
-            console.log("invalid")
             await dispatch(update_sensor_list({
                 set_selected_sensors_to_loading: true,
                 selected_sensors: Object.keys(state.caches.selected_sensors_cache)
@@ -388,7 +387,6 @@ export const handle_time_update = createAsyncThunk(
             || window_ratio > 1.1 + CACHE_OVERFLOW_RATIO
             || most_recent_query_start > min_date
         ) {
-            console.log("updating")
             await dispatch(update_sensor_list({
                 set_selected_sensors_to_loading: false,
                 selected_sensors: Object.keys(state.caches.selected_sensors_cache)
@@ -554,6 +552,7 @@ export const cachesSlice = createSlice({
                 state.end_date = action.payload.end_date;
                 state.handle_2_date = action.payload.end_date;
                 state.sensor_table = action.payload.sensor_table;
+                console.log(action.payload.sensor_table)
             })
             .addCase(initial_page_load.rejected, () => {
                 window.alert("Failed To Contact Server");
