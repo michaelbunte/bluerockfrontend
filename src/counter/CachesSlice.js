@@ -68,10 +68,12 @@ export const initial_page_load = createAsyncThunk(
             sensor_table_dict[row["internal_data_name"]] = row;
         });
 
+        let end_date = new Date(plcrange[plcrange.length - 1][0]).toISOString(); 
+
         return {
             sensor_table: sensor_table_dict,
             start_date: new Date(plcrange[0][0]).toISOString(),
-            end_date: new Date(plcrange[plcrange.length - 1][0]).toISOString()
+            end_date: end_date
         };
     }
 )

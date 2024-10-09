@@ -14,6 +14,8 @@ export default function StockTicker({
   allow_user_updates = true,
 }) {
 
+
+  const reformatted_title = title || "";
   const min_value_millis = new Date(min_value).getTime();
   const max_value_millis = new Date(max_value).getTime();
 
@@ -22,8 +24,8 @@ export default function StockTicker({
   const colors = Highcharts.getOptions().colors;
 
   let unicode_value_total = 0;
-  for (let i = 0; i < title.length; i++) {
-    unicode_value_total += title.codePointAt(i);
+  for (let i = 0; i < reformatted_title.length; i++) {
+    unicode_value_total += reformatted_title.codePointAt(i);
   }
   const color = colors[unicode_value_total % 8];
 
@@ -64,7 +66,7 @@ export default function StockTicker({
     // Initialize the chart
     const options = {
       title: {
-        text: title
+        text: reformatted_title
       },
       chart: {
         type: 'area',

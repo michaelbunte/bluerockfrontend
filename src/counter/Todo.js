@@ -255,10 +255,14 @@ export default function Todo() {
         dispatch(pause_playback())
     }
 
-    const charts = sensor_names.map(sensor_name =>
-        <div onMouseDown={chart_click_error_f} key={sensor_name}>
+    const charts = sensor_names.map(sensor_name => {
+        let title = "";
+        try {
+            title = sensor_table.get(sensor_name, "human_readible_name");
+        } catch {}
+        return <div onMouseDown={chart_click_error_f} key={sensor_name}>
             <StockTicker
-                title={sensor_table.get(sensor_name, "human_readible_name")}
+                title={title}
                 data={selected_sensors_cache[sensor_name]}
                 set_min_value={set_handle_1_date}
                 set_max_value={set_handle_2_date}
@@ -269,6 +273,7 @@ export default function Todo() {
                 allow_user_updates={is_playing}
             />
         </div>
+    }
     );
 
     let current_time = new Date((new Date(handle_start).getTime() + new Date(handle_end).getTime()) / 2).toISOString();
@@ -374,10 +379,10 @@ export default function Todo() {
                         </div>
                     </PrettyBox>
                     <PrettyBox>
-                        <div style={{ 
-                                position: "relative",
-                                minHeight: '670px'
-                             }}>
+                        <div style={{
+                            position: "relative",
+                            minHeight: '670px'
+                        }}>
                             <UserSensorTable />
                             {are_caches_loading && <div style={{
                                 position: "absolute",
