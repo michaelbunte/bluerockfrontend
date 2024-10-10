@@ -599,6 +599,8 @@ export const select_host_string = state => state.caches.host_string;
 
 export const select_current_system = state => state.caches.selected_system;
 
+export const select_selected_downloadable_sensors = state => state.caches.selected_downloadable_sensors;
+
 // createSelector allows for memoizing
 export const select_sensor_table = createSelector(
     [

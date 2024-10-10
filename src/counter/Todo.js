@@ -27,6 +27,7 @@ import {
     select_playback_speed_name,
     select_user_selected_sensors,
     update_selected_downloadable_sensors,
+    select_selected_downloadable_sensors,
     pause_playback,
     SYSTEMS,
     select_current_system,
@@ -96,7 +97,8 @@ function UserSensorTable() {
     const dispatch = useDispatch();
     const modal_table_dict = useSelector(select_sensor_table);
     const user_selected_sensors = useSelector(select_user_selected_sensors);
-    const user_selected_downloads = new Set(useSelector(state => state.caches.selected_downloadable_sensors));
+    const user_selected_downloads = new Set(useSelector(select_selected_downloadable_sensors));
+    console.log(user_selected_downloads)
 
     const sensor_table_data = Object.keys(modal_table_dict)
         .sort()
@@ -164,6 +166,7 @@ export default function Todo() {
     const user_selected_sensors = useSelector(select_user_selected_sensors);
     const host_string = useSelector(state => state.caches.host_string);
     const selected_system = useSelector(select_current_system);
+    const user_selected_downloads = new Set(useSelector(select_selected_downloadable_sensors));
 
     const [is_init_load, set_is_init_load] = useState(true);
     const [handle_1_date, set_handle_1_date] = useState(new Date());
@@ -420,7 +423,7 @@ export default function Todo() {
                                     if (download_loading) { return; }
 
                                     set_download_loading(true);
-                                    await Download_selected_sensors(start_download_date, end_download_date, Array.from(user_selected_sensors), host_string, selected_system);
+                                    await Download_selected_sensors(start_download_date, end_download_date, Array.from(user_selected_downloads), host_string, selected_system);
                                     set_download_loading(false);
                                 }}
                             />
