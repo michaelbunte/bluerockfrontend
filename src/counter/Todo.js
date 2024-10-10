@@ -8,7 +8,9 @@ import {
     SkipSmall,
     SkipLarge,
     SkipSmallLeft,
-    SkipLargeLeft
+    SkipLargeLeft,
+    ZoomIn,
+    ZoomOut
 } from "../Components/playbackcomponents";
 
 import SearchableTable from "../Components/SearchableTable";
@@ -53,6 +55,7 @@ import BrushChart from "../Components/Chart";
 
 import BluerockSchematic from "../Components/BluerockSchematic";
 import SantaTeresaPryorFarmsSchematic from "../Components/SantaTeresaPryorFarmsSchematic";
+import { zoom } from "d3";
 
 function MiniCard({ top = "", bottom = "" }) {
     return <div style={{ padding: "4px", background: "white", margin: "2.5px", borderRadius: "3px", boxShadow: "6px 6px 5px 0px rgba(0,0,0,0.1)" }}>
@@ -98,7 +101,6 @@ function UserSensorTable() {
     const modal_table_dict = useSelector(select_sensor_table);
     const user_selected_sensors = useSelector(select_user_selected_sensors);
     const user_selected_downloads = new Set(useSelector(select_selected_downloadable_sensors));
-    console.log(user_selected_downloads)
 
     const sensor_table_data = Object.keys(modal_table_dict)
         .sort()
@@ -209,6 +211,16 @@ export default function Todo() {
         update_handles(h1 + handle_diff / 15, h2 + handle_diff / 15);
     }
 
+    function zoomout() {
+        const [h1, h2, handle_diff] = get_handles_and_diff();
+        update_handles(h1 - handle_diff/ 1.1, h2 + handle_diff / 1.1);
+    }
+
+    function zoomin() {
+        const [h1, h2, handle_diff] = get_handles_and_diff();
+        update_handles(h1 + handle_diff/4, h2 - handle_diff / 4);
+    }
+
     useEffect(() => {
         // ensures this can only run once
 
@@ -266,7 +278,7 @@ export default function Todo() {
     const charts = sensor_names.map(sensor_name => {
         let title = create_extended_name(sensor_name, modal_table_dict);
         let units = modal_table_dict.get(sensor_name, "units");
-        if(units) {
+        if (units) {
             title += ` (${units})`
         }
 
@@ -323,6 +335,21 @@ export default function Todo() {
             disabled={are_caches_loading}
         />
     ))
+
+    const zoom_buttons = [
+        <Button
+            onClick={zoomin}
+            text={<ZoomIn />}
+            key={'zoom_1'}
+            disabled={are_caches_loading}
+        />,
+        <Button
+            onClick={zoomout}
+            text={<ZoomOut />}
+            key={'zoom_2'}
+            disabled={are_caches_loading}
+        />
+    ]
 
     return (<div>
         <div style={{
@@ -456,6 +483,9 @@ export default function Todo() {
                 <Col md={5}>
                     <PrettyBox>
                         <>
+                            <ButtonGroup>
+                                {zoom_buttons}
+                            </ButtonGroup>
                             {charts}
                         </>
                     </PrettyBox>
