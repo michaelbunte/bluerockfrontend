@@ -73,7 +73,8 @@ export async function Download_selected_sensors(
     start_date,
     end_date,
     selected_sensors,
-    host_string
+    host_string,
+    selected_system
 ) {
 
 
@@ -86,15 +87,19 @@ export async function Download_selected_sensors(
         return;
     }
 
-    const query_string = `http://${host_string}/specific_sensors_range/fetch/${selected_sensors}/${start_date}/${end_date}`;
-    console.log(query_string)
+    const query_string = `http://${host_string}/specific_sensors_range/${selected_system}/${selected_sensors}/${start_date}/${end_date}`
+
     let response = await fetch(query_string);
     let response_json = await response.json();
 
-    const csv = convertToCSV(response_json);
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'data.csv';
-    link.click();
+    try {
+        const csv = convertToCSV(response_json);
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'data.csv';
+        link.click();
+    } catch {
+        window.alert("Something went wrong, possibly an invalid range was selected")
+    }
 }

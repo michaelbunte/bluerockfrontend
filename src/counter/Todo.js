@@ -420,7 +420,7 @@ export default function Todo() {
                                     if (download_loading) { return; }
 
                                     set_download_loading(true);
-                                    await Download_selected_sensors(start_download_date, end_download_date, Array.from(user_selected_sensors), host_string);
+                                    await Download_selected_sensors(start_download_date, end_download_date, Array.from(user_selected_sensors), host_string, selected_system);
                                     set_download_loading(false);
                                 }}
                             />
