@@ -50,7 +50,7 @@ export const binarySearchNearestTime = (arr, targetTime) => {
 
 
 // let host_string = "ec2-54-215-192-153.us-west-1.compute.amazonaws.com:5001";
-let host_string = "https://dev.svwaternet.org/sensor_info"
+let host_string = "dev.svwaternet.org/sensor_info"
 
 export const initial_page_load = createAsyncThunk(
     'caches/initial_page_load',
@@ -125,7 +125,7 @@ export const update_sensor_list = createAsyncThunk(
 
         let retrieved_sensor_values = await Promise.all(selected_sensors.map(
             sensor_name =>
-                fetch(`http://${host_string}/adaptive_all_history/${state.caches.selected_system}/${sensor_name}/${new Date(query_range.start)}/${new Date(query_range.end)}`)
+                fetch(`https://${host_string}/adaptive_all_history/${state.caches.selected_system}/${sensor_name}/${new Date(query_range.start)}/${new Date(query_range.end)}`)
                     .then(response => response.json())
         ));
 
