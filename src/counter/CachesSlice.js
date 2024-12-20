@@ -50,7 +50,7 @@ export const binarySearchNearestTime = (arr, targetTime) => {
 
 
 // let host_string = "ec2-54-215-192-153.us-west-1.compute.amazonaws.com:5001";
-let host_string = "localhost:5001"
+let host_string = "172.31.21.255:5001"
 
 export const initial_page_load = createAsyncThunk(
     'caches/initial_page_load',
