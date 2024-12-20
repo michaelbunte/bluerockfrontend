@@ -87,7 +87,7 @@ export async function Download_selected_sensors(
         return;
     }
 
-    const query_string = `http://${host_string}/specific_sensors_range/${selected_system}/${selected_sensors}/${start_date}/${end_date}`
+    const query_string = `https://${host_string}/specific_sensors_range/${selected_system}/${selected_sensors}/${start_date}/${end_date}`
 
     let response = await fetch(query_string);
     let response_json = await response.json();

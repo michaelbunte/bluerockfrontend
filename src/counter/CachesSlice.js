@@ -57,9 +57,9 @@ export const initial_page_load = createAsyncThunk(
     async (amount, { getState }) => {
         const state = getState();
         let [sensor_table, plcrange] = await Promise.all([
-            fetch(`http://${host_string}/sensor_info_table/${state.caches.selected_system}`)
+            fetch(`https://${host_string}/sensor_info_table/${state.caches.selected_system}`)
                 .then(response => response.json()),
-            fetch(`http://${host_string}/adaptive_all_history/${state.caches.selected_system}/plctime/${new Date("1970").toISOString()}/${new Date("2100").toISOString()}`)
+            fetch(`https://${host_string}/adaptive_all_history/${state.caches.selected_system}/plctime/${new Date("1970").toISOString()}/${new Date("2100").toISOString()}`)
                 .then(response => response.json()),
         ]);
 
@@ -188,7 +188,7 @@ export const update_playback_cache_async = createAsyncThunk(
                 payload: query_range
             })
 
-            let new_cache = await fetch(`http://${host_string}/adaptive_all_sensors/${state.caches.selected_system}/${query_range.start}/${query_range.end}`)
+            let new_cache = await fetch(`https://${host_string}/adaptive_all_sensors/${state.caches.selected_system}/${query_range.start}/${query_range.end}`)
                 .then(response => response.json());
 
             // TODO: need to check if new_cache is still valid
@@ -250,7 +250,7 @@ export const update_playback_cache_async = createAsyncThunk(
 
             let state = getState();
 
-            let new_cache = await fetch(`http://${host_string}/adaptive_all_sensors/${state.caches.selected_system}/${query_range.start}/${query_range.end}`)
+            let new_cache = await fetch(`https://${host_string}/adaptive_all_sensors/${state.caches.selected_system}/${query_range.start}/${query_range.end}`)
                 .then(response => response.json());
 
             if (
